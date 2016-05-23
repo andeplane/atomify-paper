@@ -50,6 +50,9 @@ Atomify is a rather small code built on Qt. All GUI is defined in QML whereas th
 \subsection{Rendering techniques}
 Simulations of atoms are often visualized as spheres and cylinders. The spheres represent the atoms while the cylinders represent the bonds between the atoms. This way the molecular structure is much easier to see and understand. In popular visualization tools like VMD, the spheres and cylinders are built up by many triangles connected so they form the geometrical object of interest. The problem with this rendering technique is that each sphere needs many triangles in order to look spherical. This significantly reduces the rendering performance. A common technique to overcome this problem is to use billboards. Billboards are planes made up by two triangles with surface normal parallel to the vector pointing towards the camera. By doing proper shading, the billboards can mimick the spheres and cylinders so they look realistic.
 
+\subsubsection*{Pipeline}
+When rendering one often wants to modify the data from LAMMPS before it is visualized. Examples are periodic images of the simulation, slicing and coloring. We have been inspired by the pipeline used in Ovito where the data flows through several \textit{modifiers}, each modifying the visualization data before the data is converted to a format for the GPU.
+
 \subsubsection*{Sphere billboards}
 Each sphere is visualized as two triangles making up a square large enough to cover all pixels the sphere needs. 
 
