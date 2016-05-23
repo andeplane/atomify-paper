@@ -1,0 +1,76 @@
+\documentclass[aps,pre,twocolumn,letterpaper,floatfix,showpacs]{revtex4}
+\usepackage{graphicx} 
+\usepackage{amsmath,amssymb,amsfonts} 
+\usepackage{mathtools}
+\usepackage{pdfpages}
+\usepackage{afterpage}
+\usepackage[hidelinks]{hyperref} 
+\usepackage{epstopdf}
+\begin{document}
+\title{Atomify - a live LAMMPS visualizer}
+%\author{A. Hafreager, S-A. Dragly, A. Malthe-S\oe renssen$^1$}
+\email{anders.hafreager@fys.uio.no}
+\author{Svenn-Arne Dragly $^{1}$} 
+\author{Anders Malthe-S\o renssen $^1$}
+\affiliation{$^1$Department of Physics - University of Oslo\\Sem S{\ae}lands vei 24, NO-0316, Oslo, Norway }
+\date{\today} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract} 
+Atomify is a new tool simplifying the workflow when working with LAMMPS. It combines script editing, running simulations and visualizing into one single application by running an instance of a LAMMPS object with direct access to the simulation data in memory. Live plotting of computes in LAMMPS can easily be shown by an easy-to-use GUI. High end hardware is able to run Atomify with live simulations of millions of atoms with a modern, high quality rendering technique. Atomify supports accelerated simulations with OpenMP, GPU and Xeon Phi. The program is built with Qt and is distributed as open-source software under the GPL license. 
+\end{abstract} 
+ 
+\maketitle
+ 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+Molecular dynamics has become a standard technique for simulating atoms in a broad range of fields. It is used to understand how liquids, solids and gases behave in problems relevant for physics, chemistry and biology. 
+
+\section{Installation}
+The installation of atomify can be done in many ways. The easiest ones are by using the App Store for your operating system (Ubuntu and Mac OSX currently supported). If you want to download and compile the software yourself, you will need Qt Creator (supporting Qt 5.7).
+\subsection{Mac App Store}
+Atomify is available as free software in the Mac App Store. 
+\subsection{Homebrew on Mac}
+brew install atomify
+
+\subsection{Ubuntu}
+sudo apt-get install atomify
+
+\section{Application}
+Atomify is a rather small code built on Qt. All GUI is defined in QML whereas the backend of the program communicating with LAMMPS is written in c++. Simply put, Atomify runs an instance of a LAMMPS object enabling the user to visualize the current state of LAMMPS and interact with LAMMPS while the simulation is running. 
+
+\subsection{Communicating with LAMMPS}
+
+
+\subsection{Live plotting}
+
+
+\subsection{Rendering techniques}
+Simulations of atoms are often visualized as spheres and cylinders. The spheres represent the atoms while the cylinders represent the bonds between the atoms. This way the molecular structure is much easier to see and understand. In popular visualization tools like VMD, the spheres and cylinders are built up by many triangles connected so they form the geometrical object of interest. The problem with this rendering technique is that each sphere needs many triangles in order to look spherical. This significantly reduces the rendering performance. A common technique to overcome this problem is to use billboards. Billboards are planes made up by two triangles with surface normal parallel to the vector pointing towards the camera. By doing proper shading, the billboards can mimick the spheres and cylinders so they look realistic.
+
+\subsubsection*{Sphere billboards}
+Each sphere is visualized as two triangles making up a square large enough to cover all pixels the sphere needs. 
+
+\subsubsection*{Cylinder billboard}
+
+\section{Conclusion}
+We have
+
+\subsection{Future work}
+All parts of Atomify can easily be ported to the web using WebGL and Emscripten. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliography{bibliography}
+
+%\begin{thebibliography}{9}
+
+%\bibitem[Groeneboom2014]{groeneboom2014} Groeneboom, N.~E., \& Dahle, H.\ 2014, \apj, 783, 138 
+
+%\end{thebibliography}
+
+
+\end{document}  
