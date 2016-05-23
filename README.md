@@ -1,2 +1,2 @@
-# nanopores-paper
-paper version!
+# atomify-paper
+
