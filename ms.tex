@@ -30,11 +30,13 @@ Molecular dynamics has become a standard technique for simulating atoms and mole
 
 The work in this paper is focused on LAMMPS. Although the software is well-documented and enables the user to perform advanced simulations, it can be a demanding job to learn how to use it well. A LAMMPS simulation is defined by a series of commands which are executed one by one. Physical quantities such as energy, temperature and stress can be measured by adding \textit{computes}. These can in turn be saved to file for plotting and further analysis. Particle trajectories can be saved to a file and visualized by tools such as VMD\cite{Humphrey1996Vmd} or OVITO\cite{Stukowski2009Visualization}. The lack of an intuitive GUI and visualization \footnote{which are listed in the non-features list on the web page: \url{http://lammps.sandia.gov/non_features.html}} makes the workflow somewhat complicated. 
 
-Atomify solves this problem by combining the script editing, simulating and visualization into one single application. It uses LAMMPS as a library and executes commands one by one. A synchronization step copies the relevant information from LAMMPS to the GPU for visualization and data plotting. 
-
+Atomify solves this problem by combining the script editing, simulating and visualization into one single application. It uses LAMMPS as a library and executes commands one by one. A synchronization step copies the relevant information from LAMMPS to the GPU for visualization and data plotting. The visualization is done using raytracing on billboards allowing rendering of millions of atoms with good framerate. 
 
 \section{Features}
 
+\subsection{Script editor}
+\subsection{Visualization}
+\subsection{Live plotting}
 
 \section{Implementation}
 Atomify is a rather small code built on Qt. All GUI is defined in QML whereas the backend of the program communicating with LAMMPS is written in c++. Simply put, Atomify runs an instance of a LAMMPS object enabling the user to visualize the current state of LAMMPS and interact with LAMMPS while the simulation is running. 
@@ -61,9 +63,14 @@ Each sphere is visualized as two triangles making up a square large enough to co
 We have
 
 \subsection{Future work}
-Atomify is far from finished. 
-A web version of Atomify is in development. 
-All parts of Atomify can easily be ported to the web using WebGL and Emscripten. 
+Atomify is far from finished.\\
+A web version of Atomify is in development using WebGL and Emscripten. \\
+Geometry shaders \\
+Improved script editor with auto completion \\
+Moltemplate interface \\
+
+
+
 
 \bibliographystyle{plain}
 \bibliography{Remote}
