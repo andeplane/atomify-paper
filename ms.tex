@@ -7,6 +7,7 @@
 \usepackage[hidelinks]{hyperref} 
 \usepackage{epstopdf}
 \begin{document}
+
 \title{Atomify - a live LAMMPS visualizer}
 \author{Anders Hafreager$^1$}
 \author{Svenn-Arne Dragly$^{1}$} 
@@ -14,47 +15,175 @@
 \affiliation{$^1$Department of Physics - University of Oslo\\Sem S{\ae}lands vei 24, NO-0316, Oslo, Norway }
 \date{\today} 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{abstract} 
-The typical workflow when developing LAMMPS scripts includes working with several programs. A text editor is needed to modify the scripts, the terminal to run the simulation, and programs like VMD or Ovito to visualize the system over time. If physical quantities are computed, the data is often plotted with MATLAB or Python, where additional scripts must be used. This is a tedious process, especially for teaching purposes and for people who are new to LAMMPS. 
-We here introduce Atomify; a high performance live visualizer for LAMMPS simulations, with stunning graphics able to simulate and render more than 250000 atoms with excellent frame rate on modern hardware. Atomify supports OpenMP acceleration, live plotting of LAMMPS variables and computes, and an easy-to-use code editor in one single program. Direct access to the powerful machinery already built into LAMMPS allows easy access to advanced physical quantities. Atomify is open source software (GPL) written in C++, built on top of Qt. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstract}
+%
+The typical workflow when developing LAMMPS scripts includes working with
+several programs.
+A text editor is needed to modify the scripts,
+the terminal to run the simulation, and programs like VMD or Ovito to visualize
+the system over time.
+If physical quantities are computed, the data is often plotted with MATLAB or
+Python, where additional scripts must be used.
+This is a tedious process, especially for teaching purposes and for people who
+are new to LAMMPS.
+We here introduce Atomify;
+a high performance live visualizer for LAMMPS simulations,
+with stunning graphics able to simulate and render more than 250000 atoms with
+excellent frame rate on modern hardware.
+Atomify supports OpenMP acceleration, live plotting of LAMMPS variables and
+computes, and an easy-to-use code editor in one single program.
+Direct access to the powerful machinery already built into LAMMPS allows easy
+access to advanced physical quantities.
+Atomify is open-source software (GPL) written in C++ using the Qt framework.
+%
 \end{abstract} 
  
 \maketitle
- 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{Introduction}
-Molecular dynamics (MD) has become a standard technique for simulating atoms and molecules in a broad range of fields. Over the years, increasingly sophisticated methods have been developed. With the large number of force fields, advanced techniques and GPU acceleration, implementing a good molecular dynamics program from scratch a challenging task. While many people at some point write their own MD code, most end up using one of the many available codes\footnote{See \url{https://en.wikipedia.org/wiki/Comparison_of_software_for_molecular_mechanics_modeling}} such as LAMMPS\cite{plimpton1995fast} and GROMACS\cite{Pronk2013}. Both of these codes have been developed for more than two decades and contains more than one million lines of code each. 
+%
+Molecular dynamics (MD) is a common technique for simulating the motion of atoms
+and molecules in a broad range of fields.
+% TODO does MD also include larger particles?
+% TODO which fields?
+Over the years, increasingly sophisticated methods have been developed.
+% TODO what methods?
+With the large number of force fields, advanced techniques and GPU acceleration,
+implementing a good molecular dynamics simulation is a challenging task.
+There are many software packages for molecular dynamics modelling
+available
+\footnote{See \url{https://en.wikipedia.org/wiki/Comparison_of_software_for_molecular_mechanics_modeling}.
+Some packages, such as LAMMPS\cite{plimpton1995fast} and GROMACS\cite{Pronk2013}
+have been developed for more than two decades and contain more than one million
+lines of code each.
 
-The work in this paper is focused on LAMMPS. Although the software is well-documented and enables the user to perform advanced simulations, it can be a demanding job to learn how to use it well. A LAMMPS simulation is defined by a series of commands which are executed one by one. Physical quantities such as energy, temperature and stress can be measured by adding \textit{computes}. A time evolution of these quantities can in turn be saved to file for plotting and further analysis. Particle trajectories can be saved to a file and visualized by tools such as VMD\cite{Humphrey1996Vmd} or OVITO\cite{Stukowski2009Visualization}. The lack of an intuitive GUI and visualization \footnote{which are listed in the non-features list on the web page: \url{http://lammps.sandia.gov/non_features.html}} makes the workflow somewhat complicated. 
+The work in this paper is focused on LAMMPS.
+Although the software is well-documented and enables the user to perform
+advanced simulations, it can be demanding to learn how to use it well.
+A LAMMPS simulation is defined by a series of commands which are executed one by
+one.
+Physical quantities such as energy, temperature and stress can be measured by
+adding \textit{computes}.
+The time evolution of these quantities can in turn be saved to file for plotting
+and further analysis.
+Particle trajectories can be saved to a file and visualized by tools such as
+VMD\cite{Humphrey1996Vmd} or OVITO\cite{Stukowski2009Visualization}.
+The lack of an intuitive GUI and visualization \footnote{which are listed in the
+non-features list on the web page:
+\url{http://lammps.sandia.gov/non_features.html}} makes the workflow somewhat
+complicated.
 
-Atomify solves this problem by combining the script editing, simulating, visualizing and analyzing into one single application. It uses LAMMPS as a library and synchronizes after each timestep, copying the relevant information from LAMMPS to the GPU for visualization and data plotting. The visualization is done using raytracing on billboards allowing rendering of millions of atoms with good framerate. 
+Atomify solves combines script editing, simulation,
+visualization, and analysis in one single software application.
+It uses LAMMPS as a library and synchronizes after each timestep,
+copying the relevant information from LAMMPS to the graphics processing unit
+(GPU) for visualization and data plotting.
+The visualization is optimized for high performance by raytracing on billboards.
+This allows visualization of millions of atoms with good framerate on desktop
+computers.
 
 \section{Features}
-Atomify comes with many useful features in addition to the 
+
+The main features of Atomify are script editing,
+live visualization, and live plotting of computed quantities.
+These will be described in detail in the following paragraphs.
+In addition, Atomify comes packaged with multiple examples,
+many of which have been made by members of the LAMMPS community.
+These examples are easily explored within Atomify.
+
+% TODO list other, smaller features that are not in the following subsections or create more subsections for bigger features
+
 \subsection{Script editor}
-The script editor is minimalistic with syntax highlighting for the LAMMPS scripting language and line numbers. It supports multiple open files and remembers which files you have open across working sessions. A simple Ctrl+R will restart the simulation with any changes you might have done.
+
+Atomify provides a lightweight script editor with syntax highlighting and line
+numbers.
+% TODO add built-in help and autocompletion to Atomify and mention here
+Multiple files can be open at the same time and persist across working sessions.
+The script can easily be restarted by clicking the button in the GUI or using
+the default shortcut (Ctrl+R in Windows and Linux or Cmd+R in macOS).
+Any changes made to the script are immediately visualized in the simulation.
+
 \subsection{Visualization}
 
 \subsection{Live plotting}
 
+In LAMMPS, computes are physical quantities calculated based on the running
+simulation, such as energy, temperature, and stress.
+% TODO better word for measures?
+These are typically macroscopic measures derived from the microscopic
+interactions between the atoms.
+
+Atomify provides live visualization of the compute values using various plotting
+techniques.
+For instance, the temperature of the simulated system can be plotted as a
+function of time as seen in figure TODO.
+% TODO add figure
+
 \subsection{Property coloring}
 
+Measures of microscopic quantities can be visualized.
+Any property of the individual atoms and bonds can in principle be used to color
+the spheres and cylinders, respectively.
+% TODO describe how this works in the GUI
+
 \section{Implementation}
-Atomify is built upon Qt. All GUI is defined in QML whereas the backend of the program communicating with LAMMPS is written in c++. Simply put, Atomify runs an instance of a LAMMPS object enabling the user to visualize the current state of LAMMPS and interact with LAMMPS while the simulation is running. 
+
+Atomify is built upon Qt.
+All GUI is defined in QML whereas the backend of the program communicating with
+LAMMPS is written in C++.
+Simply put, Atomify runs an instance of a LAMMPS object enabling the user to
+visualize the current state of LAMMPS and interact with LAMMPS while the
+simulation is running. 
 
 \subsection{Communicating with LAMMPS}
-LAMMPS can be compiled as a library with most of its contents being accessable through either the library interface or public variables in all classes. 
+
+LAMMPS can be compiled as a library with most of its contents being accessable
+through either the library interface or public variables in all classes.
+LAMMPS provides a C++ API that can be used to access parts of the internal data
+in the simulation as well as for issuing commands to LAMMPS.
+Further, direct access to raw data in LAMMPS is available through the individual
+C++ classes.
 
 \subsection{Live plotting}
 
+Live plotting is implemented using Qt Charts and Qt Data Visualization,
+which are part of the Qt framework.
+The data is extracted using LAMMPS' C++ API and converted to Qt datatypes before
+visualization.
+
 \subsection{Data pipeline}
-When rendering one often wants to modify the data from LAMMPS before it is visualized. Examples are periodic images of the simulation, slicing and coloring. We have been inspired by the pipeline used in Ovito where the data flows through several \textit{modifiers}, each modifying the visualization data before the data is converted to a format for the GPU.
+
+When rendering one often wants to modify the data
+from LAMMPS before it is visualized.
+Examples are periodic images of the simulation,
+slicing and coloring.
+We have been inspired by the pipeline used in Ovito where the data flows through
+several \textit{modifiers}, each modifying the visualization data before the
+data is converted to a format for the GPU.
 
 \section{Rendering techniques}
-Simulations of atoms are often visualized using spheres as atoms and cylinders. The spheres represent the atoms while the cylinders represent the bonds between the atoms. This way, the molecular structure is easy to understand and interpret. In many visualization tools, the spheres and cylinders are built up by many triangles connected so they form the geometrical object of interest. One problem with this rendering technique is that each sphere needs many, often hundreds, triangles in order to look spherical. This significantly reduces the rendering performance. A common technique to overcome this problem is to use billboards. Billboards are planes, made up by two or four triangles\footnote{The spheres are using two triangles, whereas the cylinders use four.} with surface normals parallel to the vector pointing towards the camera. By doing proper shading, the billboards can mimick the spheres and cylinders so they look realistic, see Figure \ref{fig:final_billboards}.
+
+Simulations of atoms are often visualized using spheres as atoms and cylinders.
+The spheres represent the atoms while the cylinders represent the bonds between
+the atoms.
+This way, the molecular structure is easy to understand and interpret.
+In many visualization tools, the spheres and cylinders are built up by many
+triangles connected so they form the geometrical object of interest.
+One problem with this rendering technique is that each sphere needs many,
+often hundreds, of triangles in order to look spherical.
+A common technique to overcome this problem is to use billboards.
+This significantly reduces the number of vertices sent from the CPU to the GPU,
+which in turn improves rendering performance.
+A sphere may consist of an arbitrary number of vertices,
+depending on the level of detail needed.
+A billboard will on the other hand consist of only 4 vertices and can be
+represented as a point on the CPU which is then expanded on the GPU using shader
+programming.
+By doing proper shading, the billboards can mimick the spheres and cylinders so
+they look realistic, see Figure \ref{fig:final_billboards}.
 
 \begin{figure}
 	\centering
@@ -64,7 +193,15 @@ Simulations of atoms are often visualized using spheres as atoms and cylinders. 
 \end{figure}
 
 \subsection{Sphere billboards}
-Each sphere is visualized as two triangles making up a square large enough to cover all pixels the sphere needs. To reduce the CPU workload, all 4 corner vertices of the square are placed at the exact position of the sphere. The radius and a vertex id is specified, so that the vertex shader can move the 4 vertices so that the plane is orthogonal to the view vector and is larger than the cross sectional area of the sphere of interest. This is illustrated in figure \ref{fig:billboards}.
+
+Each sphere is visualized as two triangles making up a square large enough to
+cover all pixels the sphere needs.
+To reduce the CPU workload, all 4 corner vertices of the square are placed at
+the exact position of the sphere.
+The radius and a vertex id is specified, so that the vertex shader can move the
+4 vertices so that the plane is orthogonal to the view vector and is larger than
+the cross sectional area of the sphere of interest.
+This is illustrated in figure \ref{fig:billboards}.
 
 \begin{figure}
 	\centering
@@ -73,17 +210,42 @@ Each sphere is visualized as two triangles making up a square large enough to co
 	\label{fig:billboards}
 \end{figure}
 
-
-
 \subsection{Cylinder billboards}
-The cylinders are a bit more difficult because of two reasons. 
-since they intersect with the spheres at the surface. This is solved by 
+%
+% TODO should we use the other terminology here rather than billboards, something about imposter visualization?
+To render bonds in the molecular structure, we have implemented a method that
+visualizes realistic cylinder shapes with billboards.
+Cylinders are more complicated to visualize with billboards because they have a
+more complex geometry.
+While spheres obviously are spherically symmetric and can be rendered the same
+way regardless of viewing angle, we need to take this into account when
+rendering cylinders.
+Furhter, the bonds need to intersect with the sphere surface in a way that
+needs to be handled by the cylinder rendering technique.
+
+The basic principle is however the same as for the spheres.
+We define the vertices needed on the CPU with the same position and add the
+necessary information about the cylinder to the vertex attributes.
+This information is then used in the vertex shader to draw the triangles of
+the billboard.
+Finally, ray tracing is used to draw the final cylinder shape based on top
+of this billboard.
+
+% TODO mention issue with end caps if this is relevant for the overlapping parts
+
+% TODO explain the details about billboard rendering?
 
 \section{Case study}
 % Rerun on large dataset
 
 \section{Conclusion}
-We have
+%
+We have presented Atomify, a software for live visualization of molecular
+dynamics simulations in LAMMPS.
+Atomify simplifies the workflow of researchers by combining script development,
+analysis and visualization in an intuitive user interface.
+The software can also be used to improve training of students using LAMMPS by
+providing immediate, visual feedback to script changes.
 
 \subsection{Future work}
 Atomify is far from finished.\\
