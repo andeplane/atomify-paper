@@ -4,13 +4,13 @@
 \usepackage{mathtools}
 \usepackage{pdfpages}
 \usepackage{afterpage}
+\usepackage{todo}
 \usepackage[hidelinks]{hyperref} 
 \usepackage{epstopdf}
 \begin{document}
 \title{Atomify - a live LAMMPS visualizer}
 \author{Anders Hafreager$^1$}
-\author{Svenn-Arne Dragly$^{1}$} 
-\author{Anders Malthe-S\o renssen$^1$}
+\author{Svenn-Arne Dragly$^{1}$}
 \affiliation{$^1$Department of Physics - University of Oslo\\Sem S{\ae}lands vei 24, NO-0316, Oslo, Norway }
 \date{\today} 
 
@@ -26,21 +26,34 @@ We here introduce Atomify; a high performance live visualizer for LAMMPS simulat
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
-Molecular dynamics (MD) has become a standard technique for simulating atoms and molecules in a broad range of fields. Over the years, increasingly sophisticated methods have been developed. With the large number of force fields, advanced techniques and GPU acceleration, implementing a good molecular dynamics program from scratch a challenging task. While many people at some point write their own MD code, most end up using one of the many available codes\footnote{See \url{https://en.wikipedia.org/wiki/Comparison_of_software_for_molecular_mechanics_modeling}} such as LAMMPS\cite{plimpton1995fast} and GROMACS\cite{Pronk2013}. Both of these codes have been developed for more than two decades and contains more than one million lines of code each. 
+Molecular dynamics (MD) has become a standard technique for simulating atoms and molecules in a broad range of fields. Over the years, increasingly sophisticated methods have been developed. With the large number of force fields, advanced techniques and GPU acceleration, implementing a good molecular dynamics program from scratch a challenging task. While many people at some point write their own MD code, most end up using one of the many available codes\footnote{See \url{https://en.wikipedia.org/wiki/Comparison_of_software_for_molecular_mechanics_modeling}} such as LAMMPS\cite{Plimpton1995Fast}, GROMACS\cite{Pronk2013}, NAMD\cite{Phillips2005Scalable}. These codes have been developed for more than two decades and contains more than one million lines of code each. \todo{check this}
 
-The work in this paper is focused on LAMMPS. Although the software is well-documented and enables the user to perform advanced simulations, it can be a demanding job to learn how to use it well. A LAMMPS simulation is defined by a series of commands which are executed one by one. Physical quantities such as energy, temperature and stress can be measured by adding \textit{computes}. A time evolution of these quantities can in turn be saved to file for plotting and further analysis. Particle trajectories can be saved to a file and visualized by tools such as VMD\cite{Humphrey1996Vmd} or OVITO\cite{Stukowski2009Visualization}. The lack of an intuitive GUI and visualization \footnote{which are listed in the non-features list on the web page: \url{http://lammps.sandia.gov/non_features.html}} makes the workflow somewhat complicated. 
+The work in this paper is focused on LAMMPS. Although the software is well-documented and enables the user to perform advanced simulations, it can be a demanding job to learn how to use it well. A LAMMPS simulation is performed by a series of commands which are executed one by one. Physical quantities such as energy, temperature and stress can be measured by adding \textit{computes}. A time evolution of these quantities can in turn be saved to file for plotting and further analysis. Particle trajectories can be saved to a file and visualized by tools such as VMD\cite{Humphrey1996Vmd} or OVITO\cite{Stukowski2009Visualization}. The lack of an intuitive GUI and visualization \footnote{which are listed in the non-features list on the web page: \url{http://lammps.sandia.gov/non_features.html}} makes the workflow somewhat complicated. 
 
-Atomify solves this problem by combining the script editing, simulating, visualizing and analyzing into one single application. It uses LAMMPS as a library and synchronizes after each timestep, copying the relevant information from LAMMPS to the GPU for visualization and data plotting. The visualization is done using raytracing on billboards allowing rendering of millions of atoms with good framerate. 
+Atomify solves this problem by combining the script editing, simulating, visualizing and analyzing into one single application. It uses LAMMPS as a library and synchronizes after each timestep, copying the relevant information from LAMMPS to the GPU for visualization and data plotting. The visualization is done using raytracing on billboards allowing rendering of millions of atoms with good framerate. Atomify is designed with simplicity as main goal.
 
+\todo{Write about existing GUI software such as Materials Studio and MacroModel}
 \section{Features}
 Atomify comes with many useful features in addition to the 
 \subsection{Script editor}
-The script editor is minimalistic with syntax highlighting for the LAMMPS scripting language and line numbers. It supports multiple open files and remembers which files you have open across working sessions. A simple Ctrl+R will restart the simulation with any changes you might have done.
+The script editor is minimalistic with line numbers and syntax highlighting for the LAMMPS scripting language. It supports multiple open files and remembers which files you have open across working sessions. A simple Ctrl+R will restart the simulation with any changes you might have done.
 \subsection{Visualization}
+Visualization of the atomic positions and the molecular structure is done using very efficient billboard rendering using OpenGL and Qt 3D. 
 
-\subsection{Live plotting}
+\subsection{Group and region highlighting}
 
-\subsection{Property coloring}
+
+\subsection{Live plotting and property coloring}
+LAMMPS can produce many different outputs using computes and variables. All computes, variables and fixes Time evolution of scalar quantities such as temperature, stress components and mean square displacement are 
+
+If a compute or variable produces a per-atom quantity, it can be used to color the atoms on a color scale from the minimum finite value to the maximum finite value, see figure \ref{fig:property_coloring}. 
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\textwidth]{property_coloring.png}
+	\caption{Atomify can use any per-atom quantity to color the atoms through computes or variables. Here the atoms are colored using the velocity squared where the middle atoms have lower mass than the other atoms. }
+	\label{fig:property_coloring}
+\end{figure}
 
 \section{Implementation}
 Atomify is built upon Qt. All GUI is defined in QML whereas the backend of the program communicating with LAMMPS is written in c++. Simply put, Atomify runs an instance of a LAMMPS object enabling the user to visualize the current state of LAMMPS and interact with LAMMPS while the simulation is running. 
@@ -59,7 +72,7 @@ Simulations of atoms are often visualized using spheres as atoms and cylinders. 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.5\textwidth]{final_billboard.png}
-	\caption{Billboards can produce pixel perfect rendering of molecules. Here we see a water molecule being rendererd with two light sources showing specular reflection and diffuse light effects.}
+	\caption{Billboards can produce pixel perfect rendering of molecules. Here we see a water molecule being rendered as billboards with two light sources showing specular reflection and diffuse light effects. }
 	\label{fig:final_billboards}
 \end{figure}
 
