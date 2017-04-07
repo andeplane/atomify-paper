@@ -6,6 +6,7 @@
 \usepackage{afterpage}
 \usepackage[hidelinks]{hyperref} 
 \usepackage{epstopdf}
+\usepackage{todo}
 \begin{document}
 
 \title{Atomify - a live LAMMPS visualizer}
@@ -56,14 +57,14 @@ implementing a good molecular dynamics simulation is a challenging task.
 There are many software packages for molecular dynamics modelling
 available
 \footnote{See \url{https://en.wikipedia.org/wiki/Comparison_of_software_for_molecular_mechanics_modeling}.}
-Some packages, such as LAMMPS\cite{plimpton1995fast} and GROMACS\cite{Pronk2013}
-have been developed for more than two decades and contain more than one million
-lines of code each.
+Some packages, such as LAMMPS\cite{Plimpton1995Fast}, GROMACS\cite{Pronk2013}
+and NAMD\cite{Phillips2005Scalable} have been developed for more than two decades 
+and contain more than one million lines of code each.
 
 The work in this paper is focused on LAMMPS.
 Although the software is well-documented and enables the user to perform
 advanced simulations, it can be demanding to learn how to use it well.
-A LAMMPS simulation is defined by a series of commands which are executed one by
+A LAMMPS simulation is performed by a series of commands which are executed one by
 one.
 Physical quantities such as energy, temperature and stress can be measured by
 adding \textit{computes}.
@@ -83,7 +84,9 @@ copying the relevant information from LAMMPS to the graphics processing unit
 (GPU) for visualization and data plotting.
 The visualization is optimized for high performance by raytracing on billboards.
 This allows visualization of millions of atoms with good framerate on desktop
-computers.
+computers. Atomify is designed with simplicity as main goal.
+
+TODO: Write about existing GUI software such as Materials Studio and MacroModel \\
 
 A simplified version of Atomify is made available for mobile platforms (Android
 and iOS).
@@ -95,6 +98,13 @@ The authors are optimistic that teachers can use the visualizations provided by
 Atomify to explain microscopic interactions underlying concepts in topics such
 as thermodynamics, geophysics, and biology.
 
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\textwidth]{final_billboard.png}
+	\caption{Oversikt over GUI}
+	\label{fig:gui}
+\end{figure}
+
 \section{Features}
 
 The main features of Atomify are script editing,
@@ -104,10 +114,16 @@ In addition, Atomify comes packaged with multiple examples,
 many of which have been made by members of the LAMMPS community.
 These examples are easily explored within Atomify.
 
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\textwidth]{final_billboard.png}
+	\caption{Workflow}
+	\label{fig:gui}
+\end{figure}
+
 % TODO list other, smaller features that are not in the following subsections or create more subsections for bigger features
 
 \subsection{Script editor}
-
 Atomify provides a lightweight script editor with syntax highlighting and line
 numbers.
 % TODO add built-in help and autocompletion to Atomify and mention here
@@ -117,8 +133,20 @@ the default shortcut (Ctrl+R in Windows and Linux or Cmd+R in macOS).
 Any changes made to the script are immediately visualized in the simulation.
 
 \subsection{Visualization}
+TODO: Color atoms based on property \\
+
+\subsection{Dashboard}
+TODO: Highlight groups/regions \\
+TODO: Show/hide groups/regions \\
+TODO: Rendering parameters \\
+TODO: Atomify commands \\
+TODO: Rendering parameters \\
+TODO: Plot compute/variable/fix \\
 
 \subsection{Live plotting}
+TODO: Histogram over per atom quantities \\
+TODO: Time evolution of quantity \\
+TODO: 2d ave/chunk binning \\
 
 In LAMMPS, computes are physical quantities calculated based on the running
 simulation, such as energy, temperature, and stress.
@@ -132,12 +160,12 @@ For instance, the temperature of the simulated system can be plotted as a
 function of time as seen in figure TODO.
 % TODO add figure
 
-\subsection{Property coloring}
-
-Measures of microscopic quantities can be visualized.
-Any property of the individual atoms and bonds can in principle be used to color
-the spheres and cylinders, respectively.
-% TODO describe how this works in the GUI
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\textwidth]{final_billboard.png}
+	\caption{Features}
+	\label{fig:gui}
+\end{figure}
 
 \section{Implementation}
 
@@ -147,6 +175,13 @@ LAMMPS is written in C++.
 Simply put, Atomify runs an instance of a LAMMPS object enabling the user to
 visualize the current state of LAMMPS and interact with LAMMPS while the
 simulation is running. 
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\textwidth]{final_billboard.png}
+	\caption{Data pipeline (lammps -> atomify)}
+	\label{fig:gui}
+\end{figure}
 
 \subsection{Communicating with LAMMPS}
 
@@ -245,8 +280,15 @@ of this billboard.
 
 % TODO explain the details about billboard rendering?
 
-\section{Case study}
+\section{Case study (Anders)}
 % Rerun on large dataset
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\textwidth]{final_billboard.png}
+	\caption{Case study result}
+	\label{fig:gui}
+\end{figure}
 
 \section{Conclusion}
 %
