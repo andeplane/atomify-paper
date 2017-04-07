@@ -1,0 +1,30 @@
+Få med billboards/impostor i abstract
+
+Vi vil kommunisere:
+Effective work flow
+Education
+Exploration of analysis (computes, fixes etc)
+Analysis, access to all LAMMPS computes
+High performance
+
+
+Case study
+Find parameters by quickly trying
+
+
+Future work:
+single commands
+web
+
+
+Plot:
+Oversikt over GUI
+Features (a,b,c,d) highlighted features
+Pipeline/workflow (atomify vs normal)
+Data flow chart (lammps/atomify)
+Rendering technique (a,b,c,d,...)
+Case study result
+
+
+
+(Benchmark)
