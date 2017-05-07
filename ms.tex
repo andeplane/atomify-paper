@@ -1,4 +1,4 @@
-\documentclass[aps,pre,twocolumn,letterpaper,floatfix]{revtex4}
+\documentclass[aps,pre,twocolumn,letterpaper,floatfix,nofootinbib]{revtex4}
 \usepackage{graphicx} 
 \usepackage{amsmath,amssymb,amsfonts} 
 \usepackage{mathtools}
@@ -7,6 +7,8 @@
 \usepackage[hidelinks]{hyperref} 
 \usepackage{epstopdf}
 \usepackage{todo}
+\usepackage{menukeys}
+
 \begin{document}
 
 \title{Atomify - a live LAMMPS visualizer}
@@ -46,17 +48,15 @@ Atomify is open-source software (GPL) written in C++ using the Qt framework.
 
 \section{Introduction}
 %
-Molecular dynamics (MD) is a common technique for simulating the motion of atoms
-and molecules in a broad range of fields.
+Molecular dynamics (MD) is a common technique for simulating the motion of atoms, molecules and larger particles in a broad range of fields such as physics, chemistry and biology \cite{flerefelt}.
 % TODO does MD also include larger particles?
 % TODO which fields?
 Over the years, increasingly sophisticated methods have been developed.
 % TODO what methods?
 With the large number of force fields, advanced techniques and GPU acceleration,
 implementing a good molecular dynamics simulation is a challenging task.
-There are many software packages for molecular dynamics modelling
-available
-\footnote{See \url{https://en.wikipedia.org/wiki/Comparison_of_software_for_molecular_mechanics_modeling}.}
+There are many software packages for molecular modelling
+available\footnote{\url{https://en.wikipedia.org/wiki/Comparison_of_software_for_molecular_mechanics_modeling} compares different softwares for molecular modeling.}.
 Some packages, such as LAMMPS\cite{Plimpton1995Fast}, GROMACS\cite{Pronk2013}
 and NAMD\cite{Phillips2005Scalable} have been developed for more than two decades 
 and contain more than one million lines of code each.
@@ -72,9 +72,8 @@ The time evolution of these quantities can in turn be saved to file for plotting
 and further analysis.
 Particle trajectories can be saved to a file and visualized by tools such as
 VMD\cite{Humphrey1996Vmd} or OVITO\cite{Stukowski2009Visualization}.
-The lack of an intuitive GUI and visualization \footnote{which are listed in the
-non-features list on the web page:
-\url{http://lammps.sandia.gov/non_features.html}} makes the workflow somewhat
+The lack of an intuitive GUI and visualization\footnote{GUI is listed as a non-feature on the web page:
+\url{http://lammps.sandia.gov/non_features.html}.} makes the workflow somewhat
 complicated.
 
 Atomify solves combines script editing, simulation,
@@ -82,7 +81,7 @@ visualization, and analysis in one single software application.
 It uses LAMMPS as a library and synchronizes after each timestep,
 copying the relevant information from LAMMPS to the graphics processing unit
 (GPU) for visualization and data plotting.
-The visualization is optimized for high performance by raytracing on billboards.
+The visualization is optimized for high performance by raytracing billboards.
 This allows visualization of millions of atoms with good framerate on desktop
 computers. Atomify is designed with simplicity as main goal.
 
@@ -100,7 +99,7 @@ as thermodynamics, geophysics, and biology.
 \begin{figure*}
 	\centering
 	\includegraphics[width=0.95\textwidth]{gui.png}
-	\caption{Oversikt over GUI}
+	\caption{Overview of the Graphical User Interface (GUI) in Atomify.}
 	\label{fig:gui}
 \end{figure*}
 \section{Features}
@@ -128,15 +127,17 @@ numbers.
 % TODO add built-in help and autocompletion to Atomify and mention here
 Multiple files can be open at the same time and persist across working sessions.
 The script can easily be restarted by clicking the button in the GUI or using
-the default shortcut (Ctrl+R in Windows and Linux or Cmd+R in macOS).
-Any changes made to the script are immediately visualized in the simulation.
+the default shortcut (\keys{Ctrl+R} in Windows and Linux or \keys{\cmd R} in macOS).
+This enables you to quickly do changes in the script and see the changes immediately. 
 
 Certain Atomify-commands can be added to the comments of a regular LAMMPS script
-to modify properties of the GUI.
+to modify properties of the GUI. All these start with \keys{\texttt{\#}} so that
+LAMMPS ignores them as they are interpreted as comments.
 For instance, the color and size of the atoms can be set based on the type by
-the command \texttt{\#/atom}.
+the command \keys{\texttt{\#/atom}}.
 To set the color to white and radius to 2.0 for particle type 1,
-the user can apply the command \texttt{\#/atom 1 2.0 \#ffffff}.
+the user can apply the command \keys{\texttt{\#/atom 1 2.0 \#ffffff}}. Certain built-in atom
+types have default values and can be accessed with \keys{\texttt{\#/atom 1 oxygen}} for simplicity.
 The initial camera position can also be set similarily.
 For a full list of the available commands, see the Atomify documentation.
 
@@ -346,7 +347,7 @@ Moltemplate interface \\
 
 \section{Acknowledgments}
 
-\bibliographystyle{plain}
+% \bibliographystyle{plain}
 \bibliography{Remote}
 
 \end{document}
