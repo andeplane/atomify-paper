@@ -74,7 +74,14 @@ Particle trajectories can be saved to a file and visualized by tools such as
 VMD\cite{Humphrey1996Vmd} or OVITO\cite{Stukowski2009Visualization}.
 The lack of an intuitive GUI and visualization\footnote{GUI is listed as a non-feature on the web page:
 \url{http://lammps.sandia.gov/non_features.html}.} makes the workflow somewhat
-complicated.
+complicated, see figure \ref{fig:flowchart}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\textwidth]{flowchart.png}
+	\caption{The typical workflow when using LAMMPS consists of multiple steps using several applications. a) A LAMMPS script is written using a text editor. b) Simulation is performed from the terminal. c) and d) visualization and analysis is performed using Ovito and \url{http://bit.ly/logplotter}. Atomify simplifies the workflow by combining all steps into a single application. }
+	\label{fig:flowchart}
+\end{figure}
 
 Atomify solves combines script editing, simulation,
 visualization, and analysis in one single software application.
@@ -84,8 +91,6 @@ copying the relevant information from LAMMPS to the graphics processing unit
 The visualization is optimized for high performance by raytracing billboards.
 This allows visualization of millions of atoms with good framerate on desktop
 computers. Atomify is designed with simplicity as main goal.
-
-TODO: Write about existing GUI software such as Materials Studio and MacroModel \\
 
 A simplified version of Atomify is made available for mobile platforms (Android
 and iOS).
@@ -111,13 +116,6 @@ In addition, Atomify comes packaged with multiple examples,
 many of which have been made by members of the LAMMPS community.
 These examples are easily explored within Atomify.
 
-\begin{figure}
-	\centering
-	\includegraphics[width=0.5\textwidth]{flowchart.png}
-	\caption{The typical workflow when using LAMMPS. a) A LAMMPS script is written using a text editor. b) Simulation is performed from the terminal. c) and d) visualization and analysis is performed using Ovito and \url{http://bit.ly/logplotter}. Atomify simplifies the workflow by combining all steps into one application. }
-	\label{fig:flowchart}
-\end{figure}
-
 % TODO list other, smaller features that are not in the following subsections or create more subsections for bigger features
 
 \subsection{Script editor}
@@ -125,7 +123,7 @@ These examples are easily explored within Atomify.
 Atomify provides a lightweight script editor with syntax highlighting and line
 numbers.
 % TODO add built-in help and autocompletion to Atomify and mention here
-Multiple files can be open at the same time and persist across working sessions.
+Multiple files can be open at the same time and the state persist across working sessions.
 The script can easily be restarted by clicking the button in the GUI or using
 the default shortcut (\keys{Ctrl+R} in Windows and Linux or \keys{\cmd+R} in macOS).
 This enables you to quickly do changes in the script and see the changes immediately. 
@@ -139,15 +137,13 @@ To set the color to white and radius to 2.0 for particle type 1,
 the user can apply the command \keys{\texttt{\#/atom 1 2.0 \#ffffff}}. Certain built-in atom
 types have default values and can be accessed with \keys{\texttt{\#/atom 1 oxygen}} for simplicity.
 The initial camera position can also be set similarily.
-For a full list of the available commands, see the Atomify documentation.
-
-TODO: Add link to documentation
+For a full list of the available commands, see the Atomify documentation\cite{atomifydocumentation}.
 
 \subsection{Visualization}
 
-Atomify provides live visualization of particles in a simulation in its 3D view.
-The particles can be colored based on properties such as atom type,
-velocity, and force.
+Atomify provides live visualization of particles in a simulation in its 3D view. 
+The particles can be colored based on any produced per-atom quantity in LAMMPS such as
+atom type, velocity, force or a variable formula.
 The coloring scheme can be changed while the simulation is running by hovering
 the mouse cursor over groups in the dashboard.
 Light colors and strength can also be changed in the dashboard.
@@ -185,7 +181,7 @@ TODO: Time evolution of quantity \\
 TODO: 2d ave/chunk binning \\
 
 In LAMMPS, computes are physical quantities calculated based on the running
-simulation, such as energy, temperature, and stress.
+simulation, such as energy, temperature and stress.
 % TODO better word for measures?
 These are typically macroscopic measures derived from the microscopic
 interactions between the atoms.
@@ -198,10 +194,11 @@ function of time as seen in figure TODO.
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.5\textwidth]{final_billboard.png}
-	\caption{Features}
+	\includegraphics[width=0.3\textwidth]{dashboard.png}
+	\caption{Dashboard}
 	\label{fig:gui}
 \end{figure}
+
 
 \section{Implementation}
 
