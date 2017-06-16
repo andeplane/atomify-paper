@@ -127,13 +127,6 @@ In addition, Atomify comes packaged with multiple examples,
 many of which have been made by members of the LAMMPS community.
 These examples are easily explored within Atomify.
 
-\begin{figure}
-	\centering
-	\includegraphics[width=0.5\textwidth]{final_billboard.png}
-	\caption{TODO: Overview of workflow, going from script, to simulation, to analyzing data, to results}
-	\label{fig:gui}
-\end{figure}
-
 % TODO list other, smaller features that are not in the following subsections or create more subsections for bigger features
 
 \subsection{Script editor}
@@ -147,15 +140,18 @@ the default shortcut (\keys{Ctrl+R} in Windows and Linux or \keys{\cmd+R} in mac
 This enables you to quickly do changes in the script and see the changes immediately. 
 
 Certain Atomify-commands can be added to the comments of a regular LAMMPS script
-to modify properties of the GUI. All these start with \keys{\texttt{\#}} so that
-LAMMPS ignores them as they are interpreted as comments.
+to modify properties of the GUI.
+All these start with \keys{\texttt{\#}} so that LAMMPS ignores them as they are
+interpreted as comments.
 For instance, the color and size of the atoms can be set based on the type by
 the command \keys{\texttt{\#/atom}}.
 To set the color to white and radius to 2.0 for particle type 1,
-the user can apply the command \keys{\texttt{\#/atom 1 2.0 \#ffffff}}. Certain built-in atom
-types have default values and can be accessed with \keys{\texttt{\#/atom 1 oxygen}} for simplicity.
+the user can apply the command \keys{\texttt{\#/atom 1 2.0 \#ffffff}}.
+Certain built-in atom types have default values and can be accessed with
+\keys{\texttt{\#/atom 1 oxygen}} for simplicity.
 The initial camera position can also be set similarily.
-For a full list of the available commands, see the Atomify documentation\cite{atomifydocumentation}.
+For a full list of the available commands, see the Atomify
+documentation\cite{atomifydocumentation}.
 
 \subsection{Visualization}
 
@@ -216,7 +212,7 @@ function of time as seen in figure TODO.
 	\centering
 	\includegraphics[width=0.3\textwidth]{dashboard.png}
 	\caption{Dashboard}
-	\label{fig:gui}
+	\label{fig:dashboard}
 \end{figure}
 
 
@@ -228,14 +224,7 @@ LAMMPS is written in C++.
 High-performance visualization is achieved by implementing billboards in Qt3D.
 Simply put, Atomify runs an instance of a LAMMPS object enabling the user to
 visualize the current state of LAMMPS and interact with LAMMPS while the
-simulation is running. 
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.5\textwidth]{final_billboard.png}
-	\caption{TODO: How data flows from LAMMPS to Atomify, technically}
-	\label{fig:gui}
-\end{figure}
+simulation is running.
 
 \subsection{Communicating with LAMMPS}
 
@@ -246,24 +235,27 @@ in the simulation as well as for issuing commands to LAMMPS.
 Further, direct access to raw data in LAMMPS is available through the individual
 C++ classes.
 
-\subsection{Live plotting}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\textwidth]{figures/data-pipeline.pdf}
+	\caption{Rendering in Atomify is based on modifying the data from LAMMPS
+    by coloring, producing periodic images, and generating bonds between atoms.
+    The data is extracted from LAMMPS using the library API and by accessing
+    the core classes.}
+	\label{fig:data-pipeline}
+\end{figure}
 
-Live plotting is implemented using Qt Charts and Qt Data Visualization,
-which are part of the Qt framework.
-The data is extracted using LAMMPS' C++ API and converted to Qt datatypes before
-visualization.
-
-\subsection{Data pipeline}
-
-When rendering one often wants to modify the data
-from LAMMPS before it is visualized.
+The data pipeline from LAMMPS to rendering in Atomify is illustrated in figure
+\ref{fig:data-pipeline}.
+When rendering one often wants to modify the data from LAMMPS before it is
+visualized.
 Examples are periodic images of the simulation,
 slicing and coloring.
 We have been inspired by the pipeline used in Ovito where the data flows through
 several \textit{modifiers}, each modifying the visualization data before the
 data is converted to a format for the GPU.
 
-\section{Rendering techniques}
+\subsection{Rendering techniques}
 
 Simulations of atoms are often visualized using spheres as atoms and cylinders.
 The spheres represent the atoms while the cylinders represent the bonds between
@@ -352,6 +344,8 @@ Atomify simplifies the workflow of researchers by combining script development,
 analysis and visualization in an intuitive user interface.
 The software can also be used to improve training of students using LAMMPS by
 providing immediate, visual feedback to script changes.
+
+The simple case study showed how Atomify can be used for quick iteration in 
 
 \subsection{Future work}
 Atomify is far from finished.\\
