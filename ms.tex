@@ -218,12 +218,14 @@ function of time as seen in figure \ref{fig:temperature}.
 
 \section{Implementation}
 
-Atomify runs a LAMMPS instance in the background that the user can issue 
-commands to and visualizes the current atom positions and the LAMMPS state.
-The user can interact with LAMMPS while the simulation is running.
+Atomify runs a LAMMPS instance in the background that it issues commands to.
+The current state and atom positions are extracted from this instance for
+visualization.
+This setup makes it possible for the user to interact with LAMMPS while the
+simulation is running.
 Atomify is written in C++ and QML using the Qt framework.
-The GUI is developed in QML and LAMMPS communication,
-computations, and rendering is mostly defined in C++.
+The GUI is written in QML, while LAMMPS communication,
+computations, and rendering is written in C++.
 High-performance visualization is implemented as billboards in Qt3D.
 
 \subsection{Communicating with LAMMPS}
