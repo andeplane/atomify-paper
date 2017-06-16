@@ -74,13 +74,6 @@ The lack of an intuitive GUI and visualization\footnote{GUI is listed as a non-f
 \url{http://lammps.sandia.gov/non_features.html}.} makes the workflow somewhat
 complicated, see figure \ref{fig:flowchart}.
 
-\begin{figure}
-	\centering
-	\includegraphics[width=0.5\textwidth]{flowchart.png}
-	\caption{The typical workflow when using LAMMPS consists of multiple steps using several applications. a) A LAMMPS script is written using a text editor. b) Simulation is performed from the terminal. c) and d) visualization and analysis is performed using Ovito and \url{http://bit.ly/logplotter}. Atomify simplifies the workflow by combining all steps into a single application. }
-	\label{fig:flowchart}
-\end{figure}
-
 Atomify solves combines script editing, simulation,
 visualization, and analysis in one single software application.
 It uses LAMMPS as a library and synchronizes after each timestep,
@@ -104,8 +97,8 @@ as thermodynamics, geophysics, and biology.
 	\includegraphics[width=0.95\textwidth]{gui.png}
 	\caption{%
     Overview of the Graphical User Interface (GUI) in Atomify.
-    The toolbar (1) provides changing
-    between editing, viewing and analyzing the running simulation,
+    The toolbar (1) is used to change between the different modes, such as 
+    editing, viewing and analyzing the running simulation, 
     in addition to playback controls.
     The file browser (2) contain the list of open LAMMPS scripts or data files.
     The text editor (3) provides code highlighting.
@@ -118,6 +111,14 @@ as thermodynamics, geophysics, and biology.
     }
 	\label{fig:gui}
 \end{figure*}
+
+\begin{figure*}
+	\centering
+	\includegraphics[width=0.95\textwidth]{flowchart.png}
+	\caption{The typical workflow when using LAMMPS consists of multiple steps using several applications. a) A LAMMPS script is written using a text editor. b) Simulation is performed from the terminal. c) and d) visualization and analysis is performed using Ovito and \url{http://bit.ly/logplotter}. Atomify simplifies the workflow by combining all steps into a single application. }
+	\label{fig:flowchart}
+\end{figure*}
+
 \section{Features}
 
 The main features of Atomify are script editing,
@@ -350,13 +351,17 @@ to LAMMPS without installing additional software.
 It will also serve as a nice demonstration of the full desktop application of
 Atomify.
 
-Performance improvements are planned by for instance using geometry shaders to
-generate periodic copies.
-Currently this is partially done on the CPU,
-which  reduces performance drastically.
-We also aim to include more backends, both using the CPU and GPU,
-in addition to running simulations on computing clusters while visualizing them
-on the users own computer.
+Performance improvements are planned by for instance using geometry shaders in
+the rendering pipeline.
+This allows a fourfold reduction in the number of vertices passed from the CPU
+to the GPU.
+Further, geometry shaders can be used for certain modifiers,
+such as the periodic copies, which are currently performed on the CPU.
+
+% TODO Reference to KOKKOS
+We also aim to include more LAMMPS backends, such as KOKKOS, and running
+simulations on computing clusters while visualizing them on the users own
+computer.
 
 The script editor will get features such as autocompletion of LAMMPS commands
 and easy access to the online documentation by hovering or selecting specific
