@@ -178,28 +178,19 @@ This is done by clicking the name of the variable or compute in the simulation
 tab.
 We will explore plots in further detail in the following section.
 
-Any operations that is applied to the system in a LAMMPS timestep or
-minimization step is called a ``fix''.
+Any operation that is applied to the system in a LAMMPS timestep or minimization
+step is called a ``fix''.
 These fixes are defined in the LAMMPS script using the ``fix'' keyword.
 Atomify registers all defined fixes and lists these in the dashboard.
-
-TODO: Time evolution of quantity \\
-TODO: 2d ave/chunk binning \\
 
 In LAMMPS, computes are physical quantities calculated based on the running
 simulation, such as energy, temperature and stress.
 % TODO better word for measures?
 These are typically macroscopic measures derived from the microscopic
 interactions between the atoms.
-These can be plotted as a function of time and visualized while the 
-simulation is running.
-Quantities that are measured per atom can be plotted in a histogram.
-
-Atomify provides live visualization of the compute values using various plotting
-techniques.
-For instance, the temperature of the simulated system can be plotted as a
-function of time as seen in figure TODO.
-% TODO add figure
+Computes and variables are shown in the Atomify dashboard,
+along with information about the regions, groups and fixes as shown in figure
+\ref{fig:dashboard}.
 
 \begin{figure}
 	\centering
@@ -208,16 +199,32 @@ function of time as seen in figure TODO.
 	\label{fig:dashboard}
 \end{figure}
 
+Computes can be plotted as a function of time and visualized while the 
+simulation is running.
+Quantities that are measured per atom can be plotted in a histogram or a 2D
+average for each region.
+Atomify provides live visualization of the compute values using various plotting
+techniques.
+For instance, the temperature of the simulated system can be plotted as a
+function of time as seen in figure \ref{fig:temperature}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.45\textwidth]{figures/temperature.png}
+	\caption{Atomify can visualize computes defined in LAMMPS. 
+    Here the temperature is plotted as a function of time.}
+	\label{fig:temperature}
+\end{figure}
 
 \section{Implementation}
 
-Atomify is built upon Qt.
-All GUI is defined in QML whereas the backend of the program communicating with
-LAMMPS is written in C++.
-High-performance visualization is achieved by implementing billboards in Qt3D.
-Simply put, Atomify runs an instance of a LAMMPS object enabling the user to
-visualize the current state of LAMMPS and interact with LAMMPS while the
-simulation is running.
+Atomify runs a LAMMPS instance in the background that the user can issue 
+commands to and visualizes the current atom positions and the LAMMPS state.
+The user can interact with LAMMPS while the simulation is running.
+Atomify is written in C++ and QML using the Qt framework.
+The GUI is developed in QML and LAMMPS communication,
+computations, and rendering is mostly defined in C++.
+High-performance visualization is implemented as billboards in Qt3D.
 
 \subsection{Communicating with LAMMPS}
 
@@ -259,8 +266,24 @@ triangles connected so they form the geometrical object of interest.
 One problem with this rendering technique is that each sphere needs many,
 often hundreds, of triangles in order to look spherical.
 A common technique to overcome this problem is to use billboards.
-This significantly reduces the number of vertices sent from the CPU to the GPU,
-which in turn improves rendering performance.
+
+Billboards are plane objects that are always facing the camera (their normal
+vector always points from the billboard center towards the camera center).
+Drawing a filled circle on the billboard is a simple approximation to rendering
+spheres, but this approach suffers from unrealistic distortions from the field
+of view and does not make it possible to render realistic lighting.
+The more robust approach, which we have chosen,
+is to cast rays from the camera to the plane and calculate the sphere
+intersection of each ray.
+The normal vector can then be found by subtracting the intersection point from
+the sphere center.
+
+The technique of using billboards with only four vertices instead of a mesh
+approximating a sphere with many more vertices is often referred to as
+\emph{imposter spheres} in the literature.
+% TODO add reference to literature explaining the details of rendering spheres with imposter billboards
+This technique significantly reduces the number of vertices sent from the CPU to
+the GPU, which in turn improves rendering performance.
 A sphere may consist of an arbitrary number of vertices,
 depending on the level of detail needed.
 A billboard will on the other hand consist of only 4 vertices and can be
@@ -320,7 +343,8 @@ of this billboard.
 % TODO explain the details about billboard rendering?
 
 \section{Case study (Anders)}
-% Rerun on large dataset
+
+% TODO Write about case study
 
 \begin{figure}
 	\centering
