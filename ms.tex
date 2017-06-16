@@ -122,14 +122,9 @@ as thermodynamics, geophysics, and biology.
 
 The main features of Atomify are script editing,
 live visualization, and live plotting of computed quantities.
-These will be described in detail in the following paragraphs.
 In addition, Atomify comes packaged with multiple examples,
 many of which have been made by members of the LAMMPS community.
 These examples are easily explored within Atomify.
-
-% TODO list other, smaller features that are not in the following subsections or create more subsections for bigger features
-
-\subsection{Script editor}
 
 Atomify provides a lightweight script editor with syntax highlighting and line
 numbers.
@@ -153,8 +148,6 @@ The initial camera position can also be set similarily.
 For a full list of the available commands, see the Atomify
 documentation\cite{atomifydocumentation}.
 
-\subsection{Visualization}
-
 Atomify provides live visualization of particles in a simulation in its 3D view. 
 The particles can be colored based on any produced per-atom quantity in LAMMPS such as
 atom type, velocity, force or a variable formula.
@@ -163,8 +156,6 @@ the mouse cursor over groups in the dashboard.
 Light colors and strength can also be changed in the dashboard.
 This will be described in further detail in the following section.
 
-\subsection{Dashboard}
-
 It is possible to organize particles in groups and regions in LAMMPS.
 These are shown in the dashboard in Atomify, which also provides controls to
 highlight or hide specific groups or regions.
@@ -172,8 +163,8 @@ To highlight a group or region, the user only needs to hover the name in the
 dashboard.
 The visibility icon can be clicked to hide a group or region.
 
-Parameters for rendering, such as the light strength and color,
-can be modified in the Rendering tab of the dashboard.
+Parameters for rendering, such as the light strength,
+attenuation, and color can be modified in the Rendering tab of the dashboard.
 See the above section about the script editor for information about how to
 modify the color of the particles.
 
@@ -191,8 +182,6 @@ minimization step is called a ``fix''.
 These fixes are defined in the LAMMPS script using the ``fix'' keyword.
 Atomify registers all defined fixes and lists these in the dashboard.
 
-\subsection{Live plotting}
-TODO: Histogram over per atom quantities \\
 TODO: Time evolution of quantity \\
 TODO: 2d ave/chunk binning \\
 
@@ -201,6 +190,9 @@ simulation, such as energy, temperature and stress.
 % TODO better word for measures?
 These are typically macroscopic measures derived from the microscopic
 interactions between the atoms.
+These can be plotted as a function of time and visualized while the 
+simulation is running.
+Quantities that are measured per atom can be plotted in a histogram.
 
 Atomify provides live visualization of the compute values using various plotting
 techniques.
@@ -348,13 +340,38 @@ providing immediate, visual feedback to script changes.
 The simple case study showed how Atomify can be used for quick iteration in 
 
 \subsection{Future work}
-Atomify is far from finished.\\
-A web version of Atomify is in development using WebGL and Emscripten. \\
-Geometry shaders \\
-Improved script editor with auto completion \\
-Moltemplate interface \\
+
+Atomify continues in heavy development and we have several features planned for
+future versions.
+A web version of Atomify using WebGL and WebAssembly will make it easy to test
+scripts in the browser.
+This is useful in educational settings where teachers wish to introduce students
+to LAMMPS without installing additional software.
+It will also serve as a nice demonstration of the full desktop application of
+Atomify.
+
+Performance improvements are planned by for instance using geometry shaders to
+generate periodic copies.
+Currently this is partially done on the CPU,
+which  reduces performance drastically.
+We also aim to include more backends, both using the CPU and GPU,
+in addition to running simulations on computing clusters while visualizing them
+on the users own computer.
+
+The script editor will get features such as autocompletion of LAMMPS commands
+and easy access to the online documentation by hovering or selecting specific
+commands.
+
+We are also working on including Moltemplate and other programs that generate
+systems to make it easier for users to get started with more complex
+simulations.
 
 \section{Availability}
+
+Atomify is availabe on Linux, MacOS and Windows and can be downloaded from
+\href{https://ovilab.net/atomify}{http://ovilab.net/atomify}.
+A lightweight version of the desktop application is also available for mobile
+devices running Android or iOS.
 
 \section{Acknowledgments}
 
