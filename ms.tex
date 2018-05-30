@@ -11,7 +11,7 @@
 
 \begin{document}
 
-\title{Atomify - a live LAMMPS visualizer}
+\title{Increased productivity using Atomify - a real-time LAMMPS visualizer}
 \author{Anders Hafreager$^1$}
 \author{Svenn-Arne Dragly$^{1}$} 
 \author{Anders Malthe-S\o renssen$^1$}
@@ -23,21 +23,13 @@
 
 \begin{abstract}
 %
-The typical LAMMPS workflow includes working with a text editor to modify
-scripts, the terminal to run simulations, and programs like VMD or Ovito to
-visualize trajectories.
-If physical quantities are computed, the data is often plotted with MATLAB or
-Python, where additional scripts must be used.
-This is a tedious process, especially for teaching purposes and for people who
-are new to LAMMPS.
-We here introduce Atomify;
-a high performance live visualizer for LAMMPS simulations,
-with stunning graphics able to simulate and render more than 250,000 atoms with
-excellent frame rate on modern hardware.
-Atomify supports OpenMP and GPU acceleration, live plotting of LAMMPS variables
-and computes, and an easy-to-use code editor in one single program.
-Direct access to the powerful machinery already built into LAMMPS allows easy
-access to advanced physical quantities.
+The typical workflow when running atomistic simulations includes working with several programs.
+A text editor is needed to create and modify the scripts, the terminal to run the simulation, and programs like VMD or Ovito to visualize the system over time.
+If physical quantities are computed, the data is often plotted with MATLAB or Python, where additional scripts must be used.
+This is a tedious process, especially for teaching purposes and for people who are new in the field.
+We here introduce Atomify; a high performance real-time visualizer for atomistic simulations that can simulate and render more than one million atoms with excellent frame rate on modern hardware.
+Atomify supports OpenMP acceleration, GPU acceleration, real-time plotting of physical quantities, and an easy-to-use code editor in one single application.
+It currently uses LAMMPS as physics engine, but it can be extended to support other codes like Gromacs, NAMD or OpenMM.
 Atomify is open-source software (GPL) written in C++ using the Qt framework.
 %
 \end{abstract} 
@@ -46,7 +38,8 @@ Atomify is open-source software (GPL) written in C++ using the Qt framework.
 
 \section{Introduction}
 %
-Molecular dynamics (MD) is a common technique for simulating the motion of atoms, molecules and larger particles in a broad range of fields such as physics, chemistry and biology \cite{flerefelt}.
+Molecular dynamics (MD) is a common technique for simulating the motion of atoms,
+molecules and larger particles in a broad range of fields such as physics, chemistry and biology \citep{van2001reaxff, allen2017computer, }.
 % TODO does MD also include larger particles?
 % TODO which fields?
 Over the years, increasingly sophisticated methods have been developed.
@@ -55,8 +48,8 @@ With the large number of force fields, advanced techniques and GPU acceleration,
 implementing a good molecular dynamics simulation is a challenging task.
 There are many software packages for molecular modelling
 available\footnote{\url{https://en.wikipedia.org/wiki/Comparison_of_software_for_molecular_mechanics_modeling} compares different softwares for molecular modeling.}.
-Some packages, such as LAMMPS\cite{Plimpton1995Fast}, GROMACS\cite{Pronk2013}
-and NAMD\cite{Phillips2005Scalable} have been developed for more than two decades 
+Some packages, such as LAMMPS\citep{Plimpton1995Fast}, Gromacs\citep{berendsen1995gromacs}
+and NAMD\citep{Phillips2005Scalable} have been developed for more than two decades 
 and contain more than one million lines of code each.
 
 The work in this paper is focused on LAMMPS.
@@ -69,13 +62,13 @@ adding \textit{computes}.
 The time evolution of these quantities can in turn be saved to file for plotting
 and further analysis.
 Particle trajectories can be saved to a file and visualized by tools such as
-VMD\cite{Humphrey1996Vmd} or OVITO\cite{Stukowski2009Visualization}.
+VMD\citep{Humphrey1996Vmd} or OVITO\citep{Stukowski2009Visualization}.
 The lack of an intuitive GUI and visualization\footnote{GUI is listed as a non-feature on the web page:
 \url{http://lammps.sandia.gov/non_features.html}.} makes the workflow somewhat
 complicated, see figure \ref{fig:flowchart}.
 
-Atomify solves combines script editing, simulation,
-visualization, and analysis in one single software application.
+Atomify combines script editing, simulation,
+visualization, and analysis in one single application.
 It uses LAMMPS as a library and synchronizes after each timestep,
 copying the relevant information from LAMMPS to the graphics processing unit
 (GPU) for visualization and data plotting.
@@ -147,7 +140,7 @@ Certain built-in atom types have default values and can be accessed with
 \keys{\texttt{\#/atom 1 oxygen}} for simplicity.
 The initial camera position can also be set similarily.
 For a full list of the available commands, see the Atomify
-documentation\cite{atomifydocumentation}.
+documentation\citep{atomifydocumentation}.
 
 Atomify provides live visualization of particles in a simulation in its 3D view. 
 The particles can be colored based on any produced per-atom quantity in LAMMPS such as
@@ -208,13 +201,13 @@ techniques.
 For instance, the temperature of the simulated system can be plotted as a
 function of time as seen in figure \ref{fig:temperature}.
 
-\begin{figure}
-	\centering
-	\includegraphics[width=0.45\textwidth]{figures/temperature.png}
-	\caption{Atomify can visualize computes defined in LAMMPS. 
-    Here the temperature is plotted as a function of time.}
-	\label{fig:temperature}
-\end{figure}
+% \begin{figure}
+% 	\centering
+% 	\includegraphics[width=0.45\textwidth]{figures/temperature.png}
+% 	\caption{Atomify can visualize computes defined in LAMMPS. 
+%     Here the temperature is plotted as a function of time.}
+% 	\label{fig:temperature}
+% \end{figure}
 
 \section{Implementation}
 
@@ -310,14 +303,6 @@ the exact position of the sphere.
 The radius and a vertex id is specified, so that the vertex shader can move the
 4 vertices so that the plane is orthogonal to the view vector and is larger than
 the cross sectional area of the sphere of interest.
-This is illustrated in figure \ref{fig:billboards}.
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.5\textwidth]{spherebillboards.png}
-	\caption{Illustration of billboards. The circles are shown in the figure to show our target rendering. a) all 4 vertices are at the center of the sphere. b) the vertex shader moves each vertex so that the plane covers a larger cross sectional area than the sphere. c) the orientation of the plane is such that the normal vector of the plane is parallel to the view vector. }
-	\label{fig:billboards}
-\end{figure}
 
 \subsection{Cylinder billboards}
 %
@@ -370,9 +355,9 @@ The simple case study showed how Atomify can be used for quick iteration in
 
 Atomify continues in heavy development and we have several features planned for
 future versions.
-A web version of Atomify using WebGL and WebAssembly will make it easy to test
-scripts in the browser.
-This is useful in educational settings where teachers wish to introduce students
+We already have a simple version of Atomify in the web browser using WebGL and WebAssembly.
+This makes it easy to test scripts in the browser with all simple functionalities available.
+This is especially useful in educational settings where teachers wish to introduce students
 to LAMMPS without installing additional software.
 It will also serve as a nice demonstration of the full desktop application of
 Atomify.
@@ -387,7 +372,7 @@ such as the periodic copies, which are currently performed on the CPU.
 % TODO Reference to KOKKOS
 We also aim to include more LAMMPS backends, such as KOKKOS, and running
 simulations on computing clusters while visualizing them on the users own
-computer.
+computers.
 
 The script editor will get features such as autocompletion of LAMMPS commands
 and easy access to the online documentation by hovering or selecting specific
