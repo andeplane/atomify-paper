@@ -1,4 +1,7 @@
+Rett på sak: hvorfor er atomify bra (features)
+
 Få med billboards/impostor i abstract
+Få med produktivitet og testing av parametere som enorm gled
 
 Vi vil kommunisere:
 Effective work flow
@@ -10,6 +13,11 @@ High performance
 
 Case study
 Find parameters by quickly trying
+ - Indenter på nanosheet
+ - thermal conductivity (regions) på nanosheet
+ - Permeability / skjære ut nanoporøst
+ - Krystallstrukturendring (http://lammps.sandia.gov/doc/compute_cna_atom.html)
+ - 
 
 
 Future work:
@@ -22,9 +30,23 @@ Oversikt over GUI
 Features (a,b,c,d) highlighted features
 Pipeline/workflow (atomify vs normal)
 Data flow chart (lammps/atomify)
+Coloring of groups / regions?
 Rendering technique (a,b,c,d,...)
 Case study result
 
+Introduce features through the eyes of a researcher 
+
+Immediate feedback
+Shorter time from idea to results
+High quality visualization
+High information density
+Parallel workflow
+Intuitive interaction
+Access to LAMMPS internals
+Tight integration with LAMMPS
+Creativity-enhancing
+High performance (low overhead)
+Educational (easy to learn)
 
 
 (Benchmark)

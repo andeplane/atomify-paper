@@ -8,7 +8,7 @@
 \usepackage{epstopdf}
 \usepackage{todo}
 \usepackage{menukeys}
-
+\usepackage{siunitx}
 \begin{document}
 
 \title{Increased productivity using Atomify - a real-time LAMMPS visualizer}
@@ -37,28 +37,36 @@ Atomify is open-source software (GPL) written in C++ using the Qt framework.
 \maketitle
 
 \section{Introduction}
-%
-Molecular dynamics (MD) is a common technique for simulating the motion of atoms,
-molecules and larger particles in a broad range of fields such as physics, chemistry and biology \citep{van2001reaxff, allen2017computer, }.
-% TODO does MD also include larger particles?
-% TODO which fields?
+Our nature is a very complex system with complicated rules that determine how and where mass, energy and momentum is transferred.
+Many macroscopic observable effects result from microscopic details on the atomic level such as melting of ice, and even life.
+Understanding the world from a bottom-up perspective requires us to be able to model a physical system from the atomic scale where the timescale is of order femtoseconds.
+Many physical and chemical processes happen on nanosecond timescales, some even during a few picoseconds, which means thousands or millions of timesteps of \SI{1}{\femto\second} need to be calculated.
+Much has happened since the first molecular dynamics simulation of hard spheres in the 1950s\citep{alder1957phase,alder1959studies}, and later, in 1964, a more realistic system with the Lennard Jones potential studying diffusion in argon\citep{rahman1964correlations}.
+The computing power has seen a tremendous increase from the CDC 3600 used in \citep{rahman1964correlations}, which performed less than 1 million instructions per second whereas modern 3 Ghz processors in typical laptops can do about 100 billion instructions per seconds.
+With this rapidly increase of computing power, the lengthscales and timescales achievable in numeriments\footnote{Numeriment is a numerical experiment, or a simulation on the computer.} is finally catching up with some experiments (ref).
+
+In molecular dynamics, a set of atoms is integrated using Newton's second law in a classical force field so the full phase space is known at all times and statistical properties can be calculated from averages assuming ergodicity.
+It has been prooved successful in reproducing and explaining multiple phenomenon such as mechanical properties \citep{jiang2009young, campbell1999structural, ning2012mechanical}, chemical reactions \citep{van2001reaxff, brenner2002second}, liquid properties\citep{allen2017computer}.
+Also in biology, molecular dynamics is useful blabla.
+
 Over the years, increasingly sophisticated methods have been developed.
-% TODO what methods?
-With the large number of force fields, advanced techniques and GPU acceleration,
-implementing a good molecular dynamics simulation is a challenging task.
-There are many software packages for molecular modelling
-available\footnote{\url{https://en.wikipedia.org/wiki/Comparison_of_software_for_molecular_mechanics_modeling} compares different softwares for molecular modeling.}.
-Some packages, such as LAMMPS\citep{Plimpton1995Fast}, Gromacs\citep{berendsen1995gromacs}
-and NAMD\citep{Phillips2005Scalable} have been developed for more than two decades 
-and contain more than one million lines of code each.
+For instance, a non-equilibrium method to measure thermal conductivity using heat exchange, was recently improved\citep{wirnsberger2015enhanced} to conserve energy better.
+To study first order phase transitions, methods like the generalized replica exchange method (gREM)\citep{kim2010generalized} can be used and nudge elastic band (NEB)\citep{henkelman2000climbing, henkelman2000improved} is often used to study energy barriers in for instance chemical reactions.
+In addition, a huge amount of force fields exists, each being good at different things.
+New hardware and a sea of optimization tricks makes implementing a good molecular dynamics code a challenging task, not to mention maintaining it over time on new arcitechtures.
+Each new feature or technique like the ones metioned above, may take days, if not weeks, to develop, preventing researchers to work on their scientific projects.
+
+Thanksfully, there already exists several software packages for atomistic simulations, many of which have been developed for more than two decades\footnote{\url{https://en.wikipedia.org/wiki/Comparison_of_software_for_molecular_mechanics_modeling} compares different softwares for molecular modeling.}.
+Some of these packages, such as LAMMPS\citep{Plimpton1995Fast}, Gromacs\citep{berendsen1995gromacs}, NAMD\citep{Phillips2005Scalable} and CHARMM\citep{brooks2009charmm}, are open source and being actively developed with hundreds of contributers.
+%After the rise of powerful graphical processing units (GPU's), most of these codes eventually added support of using accelerators\citep{brown2011implementing}.
 
 The work in this paper is focused on LAMMPS.
-Although the software is well-documented and enables the user to perform
+Although the software is well-documented\footnote{The documentation of LAMMPS is known for being very detailed precise.} and enables the user to perform
 advanced simulations, it can be demanding to learn how to use it well.
-A LAMMPS simulation is performed by a series of commands which are executed one by
-one.
-Physical quantities such as energy, temperature and stress can be measured by
-adding \textit{computes}.
+LAMMPS has a huge list of implemented features which makes it very flexible with its own scripting language.
+A LAMMPS simulation is performed by a series of commands which are executed one by one.
+
+Physical quantities such as energy, temperature and stress can be measured by adding \textit{computes}.
 The time evolution of these quantities can in turn be saved to file for plotting
 and further analysis.
 Particle trajectories can be saved to a file and visualized by tools such as
@@ -113,7 +121,6 @@ as thermodynamics, geophysics, and biology.
 \end{figure*}
 
 \section{Features}
-
 The main features of Atomify are script editing,
 live visualization, and live plotting of computed quantities.
 In addition, Atomify comes packaged with multiple examples,

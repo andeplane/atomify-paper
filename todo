@@ -1,0 +1,26 @@
+WORKFLOW WORKFLOW WORKFLOW
+
+Introdusere case-study
+ - generelt om workflow
+ - 
+Introdusere overview of features med tilhørende figur
+ - Gå igjennom de enkelte features i lys av usecaset
+  - Editor
+  - visualisering
+  - groups
+  - regions
+  - computes
+  - variables
+  - fixes
+
+Implementasjon
+ - dataflow-figur
+  - timesteps per second limit
+  - data sync limit
+ - lammps as library
+ - "modifier pipeline"
+ - parallelisert
+
+Rendering techniques
+ - figur med implementasjonsdetaljer
+ - 
