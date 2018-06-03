@@ -1,4 +1,6 @@
 \documentclass[aps,pre,twocolumn,letterpaper,floatfix,nofootinbib]{revtex4}
+	% for \code color
+\usepackage[dvipsnames]{xcolor}
 \usepackage{graphicx} 
 \usepackage{amsmath,amssymb,amsfonts} 
 \usepackage{mathtools}
@@ -9,6 +11,34 @@
 \usepackage{todo}
 \usepackage{menukeys}
 \usepackage{siunitx}
+\usepackage{listings}
+% Pretty formating of c++ (see \cpp command)
+\usepackage{xspace}
+\newcommand*{\cpp}{C\ensuremath{++}\xspace}
+
+\lstdefinelanguage{LAMMPS}{
+    morekeywords={units,atom_style,lattice,region,create_box,create_atoms,pair_style,pair_coeff,neigh_modify,mass,velocity,fix,run},
+    sensitive=false, % keywords are not case-sensitive
+    morecomment=[l]{//}, % l is for line comment
+    morecomment=[s]{/*}{*/}, % s is for start and end delimiter
+    morestring=[b]" % defines that strings are enclosed in double quotes
+}
+
+\lstset{
+numbers=left, 
+numberstyle=\small, 
+numbersep=8pt, 
+frame = single, 
+language=LAMMPS, 
+framexleftmargin=15pt,
+xleftmargin=0.65cm,
+xrightmargin=0.1cm}
+
+% Highlighte inline code
+\definecolor{light-gray}{gray}{0.95}
+%\newcommand{\code}[1]{\mbox {\texttt{#1}}}
+\newcommand{\code}[1]{\colorbox{light-gray}{\color{RawSienna}\texttt{#1}}}
+
 \begin{document}
 
 \title{Increased productivity using Atomify - a real-time LAMMPS visualizer}
@@ -37,7 +67,7 @@ Atomify is open-source software (GPL) written in C++ using the Qt framework.
 \maketitle
 
 \section{Introduction}
-Our nature is a very complex system with complicated rules that determine how and where mass, energy and momentum is transferred.
+Our nature is a very complex system with complicated rules that determine how, and where mass, energy and momentum is transferred.
 Many macroscopic observable effects result from microscopic details on the atomic level such as melting of ice, and even life.
 Understanding the world from a bottom-up perspective requires us to be able to model a physical system from the atomic scale where the timescale is of order femtoseconds.
 Many physical and chemical processes happen on nanosecond timescales, some even during a few picoseconds, which means thousands or millions of timesteps of \SI{1}{\femto\second} need to be calculated.
@@ -60,42 +90,56 @@ Thanksfully, there already exists several software packages for atomistic simula
 Some of these packages, such as LAMMPS\citep{Plimpton1995Fast}, Gromacs\citep{berendsen1995gromacs}, NAMD\citep{Phillips2005Scalable} and CHARMM\citep{brooks2009charmm}, are open source and being actively developed with hundreds of contributers.
 %After the rise of powerful graphical processing units (GPU's), most of these codes eventually added support of using accelerators\citep{brown2011implementing}.
 
+\lstinputlisting[language=LAMMPS,caption={A minimal LAMMPS input script that simulates a Lennard Jones solid at reduced temperature $T^* = 1.0$ with a reduced density of $\rho^* = 0.8442$.},label={lst:simple.in}]{simple.in}
+
 The work in this paper is focused on LAMMPS.
-Although the software is well-documented\footnote{The documentation of LAMMPS is known for being very detailed precise.} and enables the user to perform
-advanced simulations, it can be demanding to learn how to use it well.
-LAMMPS has a huge list of implemented features which makes it very flexible with its own scripting language.
-A LAMMPS simulation is performed by a series of commands which are executed one by one.
+Although the software is well-documented\footnote{The LAMMPS documentation is known for being very detailed and precise.} and enables the user to perform advanced simulations, it can be demanding to learn how to use it well.
+The core principles of molecular dynamics is so simple that high school students can easily understand the concepts, but even undergraduate students may have problems with the terminology of statistical mechanics which is used in several of the commands.
+For instance, to simulate an \textit{NVE} simulation (constant number of particles $N$, volume $V$ and energy $E$), we use the \code{fix nve} command.
 
-Physical quantities such as energy, temperature and stress can be measured by adding \textit{computes}.
-The time evolution of these quantities can in turn be saved to file for plotting
-and further analysis.
-Particle trajectories can be saved to a file and visualized by tools such as
-VMD\citep{Humphrey1996Vmd} or OVITO\citep{Stukowski2009Visualization}.
-The lack of an intuitive GUI and visualization\footnote{GUI is listed as a non-feature on the web page:
-\url{http://lammps.sandia.gov/non_features.html}.} makes the workflow somewhat
-complicated, see figure \ref{fig:flowchart}.
+A LAMMPS simulation is performed by a series of commands, which are executed one by one.
+LAMMPS has a huge list of implemented features which makes it very flexible, especially with its own, powerful scripting language.
+In listing \ref{lst:simple.in}, we show an example of a minimalistic LAMMPS script that simulates 4000 Lennard Jones atoms in an FCC lattice with reduced temperature $T^*=1.0$ and reduced density $\rho^* = 0.8442$.
+This simulation does not print much thermodynamic data, but it creates a file \code{trajectory.bin} which containes the trajectory of all atoms at every timestep.
+Other programs such as VMD\citep{Humphrey1996Vmd} or OVITO\citep{Stukowski2009Visualization} can be used to visualize the file as a postprocessing step.
 
-Atomify combines script editing, simulation,
-visualization, and analysis in one single application.
-It uses LAMMPS as a library and synchronizes after each timestep,
-copying the relevant information from LAMMPS to the graphics processing unit
-(GPU) for visualization and data plotting.
-The visualization is optimized for high performance by raytracing billboards.
-This allows visualization of millions of atoms with good framerate on desktop
-computers. Atomify is designed with simplicity as main goal.
+If we want to measure physical quantities such as energy, temperature and stress, they can be accessed through a series of commands called \textit{computes}.
+For instance, the commands \code{compute ke} and \code{compute pe} measures the kinetic and the potential energy.
+Using \textit{fixes}, we can create time averages and save these quantities to one or more files for plotting and further analysis.
+We also often put atoms in different \textit{groups}, either by their position being in a \textit{region}, or their atom type or more advanced criteria.
+Performing different operations on different groups, or just measuring physical quantities on a specific group is then easily done since almost all commands have \code{group} as an input parameter.
 
-A simplified version of Atomify is made available for mobile platforms (Android
-and iOS).
-This version of Atomify provides access to some of the examples and is intended
-for exploration of molecular dynamics simulations by students.
-It also works as a demonstration of the visualization capabilities of the
-desktop version of the software.
+\begin{figure*}
+	\centering
+	\includegraphics[width=0.95\textwidth]{flowchart.png}
+	\caption{The typical workflow when using LAMMPS consists of multiple steps using several applications. a) A LAMMPS script is written using a text editor. b) Simulation is performed from the terminal. c) and d) visualization and analysis is performed using Ovito and \url{http://bit.ly/logplotter}. Atomify simplifies the workflow by combining all steps into a single application.}
+	\label{fig:flowchart}
+\end{figure*}
+
+The lack of an intuitive GUI and visualization\footnote{GUI is listed as a non-feature on the LAMMPS web page: \url{http://lammps.sandia.gov/non_features.html}.}
+makes the workflow complicated, see figure \ref{fig:flowchart}.
+A simulation with full analysis usually involves writing the script in a text editor, running the simulation using the terminal before analysis is done with a visualization program and additional scripts written in MATLAB or Python.
+When creating a new simulation, the initial state (system box, positions of all particles, groups and regions) can be tricky to set up right, especially since groups and regions are not automatically written to the output file through the \code{dump} command.
+The time from an idea to a visual feedback can then be destructive for the creativity where immediate feedback would be ideal.
+
+We have solved this problem by creating Atomify, a real-time LAMMPS visualizer that combines script editing, simulation, visualization, and analysis in one single application.
+It uses LAMMPS as a library and hooks into the LAMMPS simulation cycle so synchronization of atom positions and physical quantities can be performed as often as every timestep.
+Most features of LAMMPS are automatically supported, except a few due to technical reasons discussed in section \ref{sec:future}.
+
+The visualization is performed using the powerful Qt3D library where advanced rendering techniques such as billboard raytracing is used to achieve maximum performance.
+This allows visualization of millions of atoms with good framerate on modern desktop computers.
+Atomify is designed with simplicity as its main goal.
+
+Since we have used the Qt framework to develop Atomify, and LAMMPS is written in object oriented \cpp, a simplified version is also made available on mobile platforms (Android and iOS).
+This version of Atomify provides access to some of the example simulations and is intended for exploration of molecular dynamics simulations by students and scientific outreach.
+It also works as a demonstration of the visualization capabilities of the desktop version of the software.
 The authors are optimistic that teachers can use the visualizations provided by
 Atomify to explain microscopic interactions underlying concepts in topics such
 as thermodynamics, geophysics, and biology.
+
 \begin{figure*}
 	\centering
-	\includegraphics[width=0.95\textwidth]{gui.png}
+	\includegraphics[width=0.9\textwidth]{gui.png}
 	\caption{%
     Overview of the Graphical User Interface (GUI) in Atomify.
     The toolbar (1) is used to change between the different modes, such as 
@@ -113,110 +157,35 @@ as thermodynamics, geophysics, and biology.
 	\label{fig:gui}
 \end{figure*}
 
-\begin{figure*}
-	\centering
-	\includegraphics[width=0.95\textwidth]{flowchart.png}
-	\caption{The typical workflow when using LAMMPS consists of multiple steps using several applications. a) A LAMMPS script is written using a text editor. b) Simulation is performed from the terminal. c) and d) visualization and analysis is performed using Ovito and \url{http://bit.ly/logplotter}. Atomify simplifies the workflow by combining all steps into a single application. }
-	\label{fig:flowchart}
-\end{figure*}
+In this paper we will go through a case study, an example simulation, where we
+use many of the useful features Atomify provides.
+We start by discussing the GUI in section \ref{sec:features} where the main features are summarized.
+In section \ref{sec:casestudy}, the case study is introduced where we go through a typical example
+of a simulation that uses regions and groups to perform different integration on different atoms.
+Details about how Atomify runs LAMMPS is found in section \ref{sec:implementation} where the data flow and the threading model is explained.
+Finally, we summarize the work in our paper in section \ref{sec:conclusion} with some thoughts about future outlooks in section \ref{sec:future}.
 
-\section{Features}
-The main features of Atomify are script editing,
-live visualization, and live plotting of computed quantities.
-In addition, Atomify comes packaged with multiple examples,
+\section{\label{sec:features}Summary of features}
+The main features of Atomify is summarized as script editing,
+real-time visualization and plotting of physical quantities.
+In addition, Atomify comes with multiple examples,
 many of which have been made by members of the LAMMPS community.
-These examples are easily explored within Atomify.
+It provides a lightweight script editor with syntax highlighting and line numbers.
 
-Atomify provides a lightweight script editor with syntax highlighting and line
-numbers.
-% TODO add built-in help and autocompletion to Atomify and mention here
 Multiple files can be open at the same time and the state persist across working sessions.
 The script can easily be restarted by clicking the button in the GUI or using
 the default shortcut (\keys{Ctrl+R} in Windows and Linux or \keys{\cmd+R} in macOS).
-This enables you to quickly do changes in the script and see the changes immediately. 
+This enables the user to get immediate visual feedback on changes in the script.
 
-Certain Atomify-commands can be added to the comments of a regular LAMMPS script
-to modify properties of the GUI.
-All these start with \keys{\texttt{\#}} so that LAMMPS ignores them as they are
-interpreted as comments.
-For instance, the color and size of the atoms can be set based on the type by
-the command \keys{\texttt{\#/atom}}.
-To set the color to white and radius to 2.0 for particle type 1,
-the user can apply the command \keys{\texttt{\#/atom 1 2.0 \#ffffff}}.
-Certain built-in atom types have default values and can be accessed with
-\keys{\texttt{\#/atom 1 oxygen}} for simplicity.
-The initial camera position can also be set similarily.
-For a full list of the available commands, see the Atomify
-documentation\citep{atomifydocumentation}.
+\section{\label{sec:casestudy}Case study: flow through nanoporous media}
+Fluid flow is often characterized with permeability, the inverse flow resistance of a material.
+The permeability can be measured using Darcy's law when applying a pressure gradient.
 
-Atomify provides live visualization of particles in a simulation in its 3D view. 
-The particles can be colored based on any produced per-atom quantity in LAMMPS such as
-atom type, velocity, force or a variable formula.
-The coloring scheme can be changed while the simulation is running by hovering
-the mouse cursor over groups in the dashboard.
-Light colors and strength can also be changed in the dashboard.
-This will be described in further detail in the following section.
+Humans use an enormous amount of energy, most of which comes from chemical reactons in burning hydrocarbons.
+\todo{Short motivation about flow in nanoporous media}
 
-It is possible to organize particles in groups and regions in LAMMPS.
-These are shown in the dashboard in Atomify, which also provides controls to
-highlight or hide specific groups or regions.
-To highlight a group or region, the user only needs to hover the name in the
-dashboard.
-The visibility icon can be clicked to hide a group or region.
 
-Parameters for rendering, such as the light strength,
-attenuation, and color can be modified in the Rendering tab of the dashboard.
-See the above section about the script editor for information about how to
-modify the color of the particles.
-
-In LAMMPS, computes are computations performed on a group of atoms.
-Variables are user defined expressions which can be used to combine values in
-calculations.
-Once defined in a LAMMPS script, these can be plotted as a function of time in
-Atomify.
-This is done by clicking the name of the variable or compute in the simulation
-tab.
-We will explore plots in further detail in the following section.
-
-Any operation that is applied to the system in a LAMMPS timestep or minimization
-step is called a ``fix''.
-These fixes are defined in the LAMMPS script using the ``fix'' keyword.
-Atomify registers all defined fixes and lists these in the dashboard.
-
-In LAMMPS, computes are physical quantities calculated based on the running
-simulation, such as energy, temperature and stress.
-% TODO better word for measures?
-These are typically macroscopic measures derived from the microscopic
-interactions between the atoms.
-Computes and variables are shown in the Atomify dashboard,
-along with information about the regions, groups and fixes as shown in figure
-\ref{fig:dashboard}.
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.3\textwidth]{dashboard.png}
-	\caption{Dashboard}
-	\label{fig:dashboard}
-\end{figure}
-
-Computes can be plotted as a function of time and visualized while the 
-simulation is running.
-Quantities that are measured per atom can be plotted in a histogram or a 2D
-average for each region.
-Atomify provides live visualization of the compute values using various plotting
-techniques.
-For instance, the temperature of the simulated system can be plotted as a
-function of time as seen in figure \ref{fig:temperature}.
-
-% \begin{figure}
-% 	\centering
-% 	\includegraphics[width=0.45\textwidth]{figures/temperature.png}
-% 	\caption{Atomify can visualize computes defined in LAMMPS. 
-%     Here the temperature is plotted as a function of time.}
-% 	\label{fig:temperature}
-% \end{figure}
-
-\section{Implementation}
+\section{\label{sec:implementation}Implementation}
 
 Atomify runs a LAMMPS instance in the background that it issues commands to.
 The current state and atom positions are extracted from this instance for
@@ -347,7 +316,7 @@ of this billboard.
 	\label{fig:gui}
 \end{figure}
 
-\section{Conclusion}
+\section{\label{sec:conclusion}Conclusion}
 %
 We have presented Atomify, a software for live visualization of molecular
 dynamics simulations in LAMMPS.
@@ -358,7 +327,7 @@ providing immediate, visual feedback to script changes.
 
 The simple case study showed how Atomify can be used for quick iteration in 
 
-\subsection{Future work}
+\section{\label{sec:future}Future work}
 
 Atomify continues in heavy development and we have several features planned for
 future versions.
