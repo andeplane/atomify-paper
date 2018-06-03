@@ -1,0 +1,47 @@
+units lj
+atom_style atomic
+lattice fcc 0.8442
+region box block 0 40 0 20 0 20
+create_box 1 box
+create_atoms 1 box
+mass 1 1.0
+velocity all create 1.0 87287
+pair_style lj/cut 2.5
+pair_coeff 1 1 1.0 1.0 2.5
+neigh_modify every 1 delay 0 check yes
+
+variable radius equal 0.25*ly
+region cylinder1 cylinder x $(0.5*ly) $(0.5*lz) ${radius} EDGE EDGE units box
+group cylinder region cylinder1
+delete_atoms group cylinder
+
+variable volume equal $(lx*PI*v_radius*v_radius)
+region cylinder2 cylinder x $(0.5*ly) $(0.5*lz) $(v_radius+4) EDGE EDGE units box side out
+region cylinder3 cylinder x $(0.5*ly) $(0.5*lz) $(v_radius+7) EDGE EDGE units box side out
+group cylinder2 region cylinder2
+group cylinder3 region cylinder3
+group frozen region cylinder3
+group langevin subtract cylinder2 cylinder3
+
+create_atoms 1 random 500 1234 cylinder1
+group nve subtract all cylinder3
+#group gas region cylinder1 dynamic region cylinder
+group gas dynamic all region cylinder1 every 1
+
+delete_atoms overlap 1.0 all all
+
+fix nve nve nve
+fix langevin langevin langevin 0.5 0.5 1.0 12345 zero yes
+
+fix flow gas addforce 1.0 0.0 0.0
+
+#compute chunk all chunk/atom bin/cylinder x center 2 $(0.5*ly) $(0.5*lz) 0 $(ly) 5.0 10 discard yes
+
+variable vx atom vx
+thermo_style custom step temp ke pe etotal spcpu cpuremain
+thermo 10
+
+#run 1000
+#compute chunk all chunk/atom bin/cylinder x lower 40 $(0.5*ly) $(0.5*ly) 0.0 ${radius} 40 discard yes
+#fix velocity gas ave/chunk 10 100 1000 chunk vx norm all ave running file velocity.txt
+run 2000
