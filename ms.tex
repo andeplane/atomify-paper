@@ -36,6 +36,10 @@ xrightmargin=0.1cm}
 
 % Highlighte inline code
 \definecolor{light-gray}{gray}{0.95}
+\definecolor{atomify-red}{rgb}{0.90196078 , 0.09803922, 0.29411765}
+\definecolor{atomify-green}{rgb}{0.23529412 , 0.70588235, 0.29411765}
+\definecolor{atomify-yellow}{rgb}{0.8,  0.70588235,  0.07843138}
+\definecolor{atomify-blue}{rgb}{0.00000000 , 0.50980392, 0.78431373}
 %\newcommand{\code}[1]{\mbox {\texttt{#1}}}
 \newcommand{\code}[1]{\colorbox{light-gray}{\color{RawSienna}\texttt{#1}}}
 
@@ -112,7 +116,11 @@ Performing different operations on different groups, or just measuring physical 
 \begin{figure*}
 	\centering
 	\includegraphics[width=0.95\textwidth]{flowchart.png}
-	\caption{The typical workflow when using LAMMPS consists of multiple steps using several applications. a) A LAMMPS script is written using a text editor. b) Simulation is performed from the terminal. c) and d) visualization and analysis is performed using Ovito and \url{http://bit.ly/logplotter}. Atomify simplifies the workflow by combining all steps into a single application.}
+	\caption{The typical workflow when using LAMMPS consists of multiple steps using several applications.
+	a) A LAMMPS script is written using a text editor.
+	b) Simulation is performed from the terminal.
+	c) and d) visualization and analysis is performed using Ovito and \url{http://bit.ly/logplotter}.
+	Atomify simplifies the workflow by combining all steps into a single application.}
 	\label{fig:flowchart}
 \end{figure*}
 
@@ -162,6 +170,7 @@ use many of the useful features Atomify provides.
 We start by discussing the GUI in section \ref{sec:features} where the main features are summarized.
 In section \ref{sec:casestudy}, the case study is introduced where we go through a typical example
 of a simulation that uses regions and groups to perform different integration on different atoms.
+Common pitfalls which are easily picked up with Atomify are shown.
 Details about how Atomify runs LAMMPS is found in section \ref{sec:implementation} where the data flow and the threading model is explained.
 Finally, we summarize the work in our paper in section \ref{sec:conclusion} with some thoughts about future outlooks in section \ref{sec:future}.
 
@@ -178,11 +187,51 @@ the default shortcut (\keys{Ctrl+R} in Windows and Linux or \keys{\cmd+R} in mac
 This enables the user to get immediate visual feedback on changes in the script.
 
 \section{\label{sec:casestudy}Case study: flow through nanoporous media}
+\todo{Short motivation about flow in nanoporous media with references}
 Fluid flow is often characterized with permeability, the inverse flow resistance of a material.
 The permeability can be measured using Darcy's law when applying a pressure gradient.
+However, the derivation of Darcy's law assume no-slip boundary conditions, i.e. the fluid velocity is zero at the boundary of a channel.
+This is a good approximation for liquids in large pores, but if the channel diameter $L$ is similar or smaller than the mean free path of the fluid $\lambda$, this is no longer the case.
+The Knudsen number, $\text{Kn} = \lambda / L$ quantifies this and can be used with the Klinkenberg correction to correctly describe the effective permeability as a function of pressure in the high Knudsen number limit.
 
-Humans use an enormous amount of energy, most of which comes from chemical reactons in burning hydrocarbons.
-\todo{Short motivation about flow in nanoporous media}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\textwidth]{lj_flow/configuration.png}
+	\caption{
+		Initial configuration in our case study simulation.
+		A periodic box consisting of $(40\times20\times20)$ FCC unit cells with reduced density $\rho^* = 0.8442$ where we will have gas flow in a cylinder of 5 unit cell radius.
+		The different colors indicate the regions of which different integration rules apply.
+		\textcolor{atomify-blue}{Blue} atoms are fixed and do not move at all,
+		whereas the \textcolor{atomify-yellow}{yellow} atoms are thermalized with a Langevin\citep{schneider1978molecular} dissipative thermostat to mimick the heat exchange with the frozen bulk atoms.
+		The \textcolor{atomify-red}{red} and the \textcolor{atomify-green}{green} atoms are integrated normally, except the \textcolor{atomify-green}{green} atoms (gas atoms) have an applied constant acceleration representing the pressure gradient.
+		Setting up and verifying this system is simple using Atomify due to the real-time coloring of groups and regions.
+    }
+	\label{fig:cylinder_simulation}
+\end{figure}
+
+In this case study, we will use Atomify to measure the velocity profile of a Lennard Jones gas with varying density to observe the slip velocity effect at low densities.
+We will create a nanotube inside a Lennard Jones solid of size  $(40\times20\times20)$ unit cells, reduced density $\rho^* = 0.8442$, where the fluid will flow due to an induced pressure gradient, see figure \ref{fig:cylinder_simulation}.
+Here we apply a pressure gradient $\nabla P$ in the $x$-direction on the gas atoms using a constant acceleration $a$
+\begin{align}
+	a = \frac{\nabla P}{\rho_m},
+\end{align}
+where $\rho_m$ is the mass density of the gas atoms.
+Applying such an acceleration means adding energy to the system which in turn will increase the temperature and eventually melt the system.
+We want to couple the solid to an external heat bath so the added energy can be transferred out through a thermostat.
+Even though we only apply a pressure gradient on the gas atoms, this induced momentum will also be transferred to the solid atoms which eventually will start moving in the positive $x$-direction which is not desired.
+We therefore freeze the outmost atoms.
+To achieve these properties of the system, the atoms are divided into multiple regions, which are integrated differently:
+
+\begin{itemize}  
+	\item $r \leq 5$: applied pressure gradient
+	\item $5 < r \leq 9$: regular time integration
+	\item $9 < r \leq 12$: Dissipative Langevin thermostat
+	\item $12 < r$: frozen.
+\end{itemize}
+
+
+
+
 
 
 \section{\label{sec:implementation}Implementation}
