@@ -203,7 +203,7 @@ The Knudsen number, $\text{Kn} = \lambda / L$ quantifies this and can be used wi
 		The different colors indicate the regions of which different integration rules apply.
 		\textcolor{atomify-blue}{Blue} atoms are fixed and do not move at all,
 		whereas the \textcolor{atomify-yellow}{yellow} atoms are thermalized with a Langevin\citep{schneider1978molecular} dissipative thermostat to mimick the heat exchange with the frozen bulk atoms.
-		The \textcolor{atomify-red}{red} and the \textcolor{atomify-green}{green} atoms are integrated normally, except the \textcolor{atomify-green}{green} atoms (gas atoms) have an applied constant acceleration representing the pressure gradient.
+		The \textcolor{atomify-red}{red} and the \textcolor{atomify-green}{green} atoms are integrated normally, except the \textcolor{atomify-green}{green} gas atoms have an applied constant acceleration representing the pressure gradient.
 		Setting up and verifying this system is simple using Atomify due to the real-time coloring of groups and regions.
     }
 	\label{fig:cylinder_simulation}
@@ -211,7 +211,7 @@ The Knudsen number, $\text{Kn} = \lambda / L$ quantifies this and can be used wi
 
 In this case study, we will use Atomify to measure the velocity profile of a Lennard Jones gas with varying density to observe the slip velocity effect at low densities.
 We will create a nanotube inside a Lennard Jones solid of size  $(40\times20\times20)$ unit cells, reduced density $\rho^* = 0.8442$, where the fluid will flow due to an induced pressure gradient, see figure \ref{fig:cylinder_simulation}.
-Here we apply a pressure gradient $\nabla P$ in the $x$-direction on the gas atoms using a constant acceleration $a$
+Here we apply a pressure gradient $\nabla P$ in the $x$-direction on the gas atoms using a constant acceleration $a$ calculated as
 \begin{align}
 	a = \frac{\nabla P}{\rho_m},
 \end{align}
@@ -229,7 +229,16 @@ To achieve these properties of the system, the atoms are divided into multiple r
 	\item $12 < r$: frozen.
 \end{itemize}
 
-
+\subsection{Creating the initial geometry}
+We create a new script in Atomify using \keys{\cmd+R}, and save it (\keys{\cmd+S}) as \code{run.in}.
+Starting from the input script in listing \ref{lst:simple.in}, we modify it to create a larger simulation box with $(40\times20\times20)$ unit cells.
+Then, to define the inner cylinder, we first specify the radius and the center before the region command:
+\begin{lstlisting}[basicstyle=\tiny, frame = none, numbers=none, framexleftmargin=0pt, xleftmargin=-0.75cm, xrightmargin=0.0cm]
+	variable R equal $(ly*0.25)
+	variable c equal $(ly*0.5)
+	region cylinder1 cylinder x $c $c $R EDGE EDGE
+\end{lstlisting}
+which gives 
 
 
 
