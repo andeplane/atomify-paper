@@ -125,7 +125,7 @@ Performing different operations on different groups, or just measuring physical 
 \end{figure*}
 
 The lack of an intuitive GUI and visualization\footnote{GUI is listed as a non-feature on the LAMMPS web page: \url{http://lammps.sandia.gov/non_features.html}.}
-makes the workflow complicated, see figure \ref{fig:flowchart}.
+makes the workflow complicated, see Fig. \ref{fig:flowchart}.
 A simulation with full analysis usually involves writing the script in a text editor, running the simulation using the terminal before analysis is done with a visualization program and additional scripts written in MATLAB or Python.
 When creating a new simulation, the initial state (system box, positions of all particles, groups and regions) can be tricky to set up right, especially since groups and regions are not automatically written to the output file through the \code{dump} command.
 The time from an idea to a visual feedback can then be destructive for the creativity where immediate feedback would be ideal.
@@ -198,7 +198,7 @@ many of which have been made by members of the LAMMPS community.
 		By clicking the name, a plot will show up showing the time evolution of that quantity.
 		If a per-atom variable or compute is hovered, all atoms will be colored according to their
 		current scalar value and a histogram over these values is shown if clicked.
-		The result of hovering atoms defined by the groups in our case study is shown in figure \ref{fig:cylinder_simulation}.
+		The result of hovering atoms defined by the groups in our case study is shown in Fig. \ref{fig:cylinder_simulation}.
     }
 	\label{fig:rightbar}
 \end{figure}
@@ -215,7 +215,7 @@ Fluid flow in porous media is often characterized with permeability, the inverse
 The permeability can be measured using Darcy's law when applying a pressure gradient.
 However, the derivation of Darcy's law assume no-slip boundary conditions, i.e. the fluid velocity is zero at the boundary of a channel. (ref)
 This is a good approximation for liquids in large pores, but if the channel diameter $L$ is similar or smaller than the mean free path of the fluid $\lambda$, this is no longer the case.
-The Knudsen number, $\text{Kn} = \lambda / L$ quantifies this and can be used with the Klinkenberg correction to correctly describe the effective permeability as a function of pressure in the high Knudsen number limit.
+The Knudsen number, $\text{Kn} = \lambda / L$ quantifies this and can be used with the Klinkenberg correction\citep{klinkenberg1941permeability} to correctly describe the effective permeability as a function of pressure in the high Knudsen number limit.
 
 \begin{figure}
 	\centering
@@ -233,7 +233,7 @@ The Knudsen number, $\text{Kn} = \lambda / L$ quantifies this and can be used wi
 \end{figure}
 
 In this case study, we will use Atomify to measure the velocity profile of a Lennard Jones gas inside a nanotube with varying density to observe the slip velocity effect at low densities.
-We will create the nanotube inside a Lennard Jones solid of size  $(40\times20\times20)$ unit cells, reduced density $\rho^* = 0.8442$, where the fluid will flow due to an induced pressure gradient, see figure \ref{fig:cylinder_simulation}.
+We will create the nanotube inside a Lennard Jones solid of size  $(40\times20\times20)$ unit cells, reduced density $\rho^* = 0.8442$, where the fluid will flow due to an induced pressure gradient, see Fig. \ref{fig:cylinder_simulation}.
 Here we apply a pressure gradient $\nabla P$ in the $x$-direction on the gas atoms using a constant acceleration $a$ calculated as
 \begin{align}
 	a = \frac{\nabla P}{\rho_m},
@@ -255,17 +255,22 @@ To achieve these properties of the system, the atoms are divided into multiple r
 \subsection{Creating the initial geometry}
 We create a new script in Atomify using \keys{\cmd+N}, and save it (\keys{\cmd+S}) as \code{run.in}.
 Starting from the input script in listing \ref{lst:simple.in}, we modify it to create a larger simulation box with $(40\times20\times20)$ unit cells.
-Then, to define the inner cylinder, we first specify the radius and the center before using the region command:
+Remove the line \code{fix nve all nve} so atoms will stand still (we will add integrator later anyway).
+We will modify this script to achieve what we described above, so we need to make sure that these commands happen \textit{before} the \code{run 1000} command in the script.
+If not, LAMMPS will not execute them before we start visualizing.
+To define the inner cylinder, we first specify the radius and the center before using the region command
 \begin{lstlisting}[basicstyle=\tiny, frame = none, numbers=none, framexleftmargin=0pt, xleftmargin=-0.75cm, xrightmargin=0.0cm]
 	variable R equal $(ly*0.25)
 	variable c equal $(ly*0.5)
 	region cylinder1 cylinder x $c $c $R EDGE EDGE
 \end{lstlisting}
 The region command will create a cylinder in the $x$-direction, with $(y,z)$-coordinates at the system center \code{\$c} with radius \code{\$R} using the full length of the cylinder specified when using \code{EDGE}.
-As shown in figure \ref{fig:rightbar}, we can hover the specified region to highlight the atoms in that region.
-When we hover the region, we immediately see that the cylinder is in fact not placed at the center of the system, as shown in figure \ref{fig:initial_configuration}a.
+We now press \keys{\cmd+R} to run the simulation to see how it looks.
+As shown in Fig. \ref{fig:rightbar}, we can hover the specified region to highlight the atoms in that region.
+When we hover the region, we immediately see that the cylinder is in fact not placed at the center of the system, as shown in Fig. \ref{fig:initial_configuration}a.
 The reason is that LAMMPS operate with two different units, either the length unit or the lattice length unit. This is explained in the documentation, but is a common mistake.
-Since we have used \code{\$(0.5*lx)}, we need to specify \code{units box} in the region command which gives the desired result in figure  \ref{fig:initial_configuration}b.
+To discover mistakes like this is quickly done with Atomify.
+Since we have used \code{\$(0.5*lx)}, we need to specify \code{units box} in the region command, rerun the simulation with \keys{\cmd+R} which gives the desired result in figure  \ref{fig:initial_configuration}b.
 
 \begin{figure}
 	\centering
@@ -296,14 +301,17 @@ The atoms inside the region can now be deleted. These steps can be done in LAMMP
 	variable delete_fraction equal (${N_cyl}-${N_wanted})/${N_cyl}
 	delete_atoms porosity cylinder1 ${delete_fraction} 1234
 \end{lstlisting}
-and the result is shown in figure \ref{fig:initial_configuration}c.
+and the result is shown after rerunning again with \keys{\cmd+R}, see Fig. \ref{fig:initial_configuration}c.
+This is a powerful workflow Atomify enables where very quick changes can be tested with immediate feedback.
+Every time we add a new command, we just rerun with \keys{\cmd+R} to see what happens.
 
-The next step now is to create a larger cylinder, the one containing the red atoms in figure \ref{fig:cylinder_simulation}, where regular time integration will take place.
+The next step now is to create a larger cylinder, the one containing the red atoms in Fig. \ref{fig:cylinder_simulation}, where regular time integration will take place.
 This cylinder should have a slightly bigger radius as stated above and can be created with another region command:
 \begin{lstlisting}[basicstyle=\tiny, frame = none, numbers=none, framexleftmargin=0pt, xleftmargin=-0.75cm, xrightmargin=0.0cm]
 	region cylinder2 cylinder x $c $c $(v_R+4) EDGE EDGE
 \end{lstlisting}
-The expected result as can be seen in figure \ref{fig:initial_configuration}d.
+Again press \keys{\cmd+R} and see the expected result in Fig. \ref{fig:initial_configuration}d.
+
 Now we have the inner cylinder with the gas atoms defined as a region and the next cylinder shell (including the gas atoms) defined as another region.
 We now want to create another shell, the one with the dissipative thermostat.
 All the atoms with the dissipative thermostat, the inner shell and the gas will be integrated with the \code{fix nve} integrator.
@@ -321,17 +329,107 @@ where we also have created the group \code{nve} for clarity.
 The dissipative thermostat will be \code{fix langevin}\citep{schneider1978molecular}, but it should only be applied on the outer shell defined by $C_3 \setminus C_2$,
 where $C_i$ is the set containing the atoms inside cylinder $i$.
 We can obtain this with the command
+
 \begin{lstlisting}[basicstyle=\tiny, frame = none, numbers=none, framexleftmargin=0pt, xleftmargin=-0.75cm, xrightmargin=0.0cm]
 	group langevin subtract cylinder3 cylinder2
 	group frozen subtract all cylinder3
 	group gas dynamic all region cylinder1 every 1
 \end{lstlisting}
+
 which will contain only the outer shell. 
 We here also created the group \code{frozen}, which is the outmost atoms, and the group \code{gas} which is dynamic since atoms may switch places and we want to only apply a force on the ones in the inner cylinder at any point in time.
 The frozen atoms will not move at all and make sure that the system does not start moving due to momentum transfer from the gas particles through the solid.
-All these groups are highlighted in figure \ref{fig:initial_configuration}e by hovering the box containing all the groups. in Atomify as shown in figure \ref{fig:initial_configuration}f.
-The colors of the atoms matches the group color next to the group name in figure \ref{fig:initial_configuration}f, where the order of coloring is the same as they were defined in the script.
-Therefore we see no green atoms (\code{cylinder1}) since all of these are in the groups \code{cylinder2}, \code{cylinder3}, \code{nve} and \code{gas}.
+All these groups are highlighted in Fig. \ref{fig:initial_configuration}e by hovering the box containing all the groups. in Atomify as shown in Fig. \ref{fig:initial_configuration}f.
+The colors of the atoms matches the group color next to the group name in Fig. \ref{fig:initial_configuration}f, where the order of coloring is the same as they were defined in the script.
+We there don't any green atoms (\code{cylinder1}) since all of these are in the groups \code{cylinder2}, \code{cylinder3}, \code{nve} and \code{gas}.
+
+\subsection{Physical setup}
+Now that we have achieved to set up the system geometrically, that is, all the different groups of atoms are defined.
+We only need to apply the different actions, or fixes, on them.
+First, we apply the time integration \code{fix nve} which should happen on all atoms within $C_3$, then the thermostat \code{fix langevin}
+
+\begin{lstlisting}[basicstyle=\tiny, frame = none, numbers=none, framexleftmargin=0pt, xleftmargin=-0.75cm, xrightmargin=0.0cm]
+	fix nve nve nve
+	fix langevin langevin langevin 1.0 1.0 1.0 12345
+	compute displacement all displace/atom
+\end{lstlisting}
+
+The syntax for fixes is \code{fix ID groupID style args}, so the above fixes has the same name as both the groups and the fix style.
+\code{fix langevin} takes at least 4 arguments \textit{Tstart, Tstop, Tdamp, seed}, i.e. the temperature in the beginning of a simulation, the temperature at the end (timesteps in between get a linearly interpolated temperature between these values), a damping parameter which controls how strongly the thermal bath interacts with the system.
+It also needs a random seed due to the random nature of the Langevin thermostat, see \citep{schneider1978molecular} for details.
+Finally, we have added another compute that measures the displacement per atom.
+Hovering this compute in the list will color each atom according to their displacement since $t=0$.
+
+By rerunning again (\keys{\cmd+R}), we can confirm that the system behaves as expected.
+In Fig. \ref{fig:moving_atoms}, we see that the outmost atoms are completely frozen (dark blue), the ones in the solid are also blue, but brighter, since they vibrate thermally in the lattice.
+The inner cylinder contains gas atoms which move more freely, as seen from the colors being in the upper part of the color map.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\textwidth]{lj_flow/07_moving.png}
+	\caption{
+		We see the expected moving atoms inside the $C_3$ cylinder.
+		The atoms are colored based on their displacement (measured in reduced length units).
+		We confirm that the outmost atoms are frozen, which we read from dark blue color mapping to 0 displacement.
+		The moving atoms in the solid are blue, but brighter than the frozen ones which is expected due to their thermal vibrations.
+		Inside the inner cylinder we see that the gas moves more freely since these atoms are not bounded.
+    }
+	\label{fig:moving_atoms}
+\end{figure}
+
+The only remaining part now is to set up the commands that will measure the physical quantities like the radial velocity profile.
+
+\subsection{Measurement setup}
+We will use the built-in binning feature in LAMMPS called chunks, a very general concept where you assign a \code{chunkID} to each atom
+based on its position. LAMMPS supports multiple different \textit{chunk styles}, one of which is cylinder.
+In the cylinder binning, we choose the same properties as for a cylinder region (center, length etc), but also the binsize in the length direction and how many radial bins we want.
+We only want one bin in the flow direction since we will measure the radial velocity profile only.
+The command for giving each atom a \code{chunkID} is\footnote{The \& is used to continue the command on the next line.}
+\begin{lstlisting}[basicstyle=\tiny, frame = none, numbers=none, framexleftmargin=0pt, xleftmargin=-0.75cm, xrightmargin=0.0cm]
+	compute chunk all chunk/atom bin/cylinder x lower &
+	$(lx) $c $c 0 $R 30 units box
+\end{lstlisting}
+See the documentation for details about this command, but note that the binsize in the length direction is equal to the system length so we only get one bin.
+It will create 30 radial bins for $r\in (0, R)$, where $R$ is the radius of the inner cylinder.
+The final command we will use is the \code{fix ave/chunk} where we can get a smooth averaged velocity profile sampled over many timesteps.
+To obtain this, we simply use
+\begin{lstlisting}[basicstyle=\tiny, frame = none, numbers=none, framexleftmargin=0pt, xleftmargin=-0.75cm, xrightmargin=0.0cm]
+	fix vx all ave/chunk 10 10 100 chunk vx ave running
+\end{lstlisting}
+Here we use every 10th value to sample the velocity profile, keeping all samples to sum them into a large histogram.
+This fix will appear in the list of fixes in the rightbar just as groups, regions, computes and variables.
+When we click it, we will get the figure shown in Fig. \ref{fig:velocity_profile1}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\textwidth]{lj_flow/08_velocity_profile1.png}
+	\caption{
+		The velocity profile for a Lennard Jones gas inside a nanochannel of radius 8.7 (reduced units).
+		Since the wall also is made of Lennard Jones atoms, some of the wall atoms 
+		This figure is made using the Atomify real-time plotter which can show any scalar value defined in LAMMPS
+		as compute, fix or variable.
+    }
+	\label{fig:velocity_profile1}
+\end{figure}
+
+\subsection{Results}
+
+\begin{figure}
+	\centering
+	% \includegraphics[width=0.5\textwidth]{lj_flow/07_moving.png}
+	\caption{
+		Velocity profiles for different densities.
+		The step flow shape is evident for low density gases with a high non-zero slip velocity.
+		When the density increases, the slip velocity goes to zero as expected.
+    }
+	\label{fig:velocity_profiles}
+\end{figure}
+
+We conclude this case study with a series of simulations of the system described above for different densities.
+Each simulation runs 10000 timesteps before we export the plots from \code{fix vx} to MATLAB using the Export function seen in Fig. \ref{fig:velocity_profile1}.
+All these plots are now merged into a final figure which is shown in Fig. \ref{fig:velocity_profiles}.
+It is here evident that the velocity near the boundary is not zero, which is the reason why the permeability is much higher for dilute gases than dense liquids.
+As mentioned earlier, this is called the Klinkenberg effect \citep{klinkenberg1941permeability}.
 
 \section{\label{sec:implementation}Implementation}
 
@@ -410,7 +508,7 @@ A billboard will on the other hand consist of only 4 vertices and can be
 represented as a point on the CPU which is then expanded on the GPU using shader
 programming.
 By doing proper shading, the billboards can mimick the spheres and cylinders so
-they look realistic, see Figure \ref{fig:final_billboards}.
+they look realistic, see Fig. \ref{fig:final_billboards}.
 
 \begin{figure}
 	\centering

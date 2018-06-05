@@ -29,10 +29,28 @@ region cylinder3 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+7) EDGE EDGE units box
 group cylinder2 region cylinder2
 group cylinder3 region cylinder3
 
-group nve region cylinder2
+group nve region cylinder3
 group langevin subtract cylinder3 cylinder2
 group frozen subtract all cylinder3
 group gas dynamic all region cylinder1 every 1
-#region cylinder1 cylinder x $(0.5*ly) $(0.5*lz) $R EDGE EDGE
-#fix nve all nve
-run 2000
+
+fix nve nve nve
+fix langevin langevin langevin 0.5 0.5 1.0 12345 zero yes
+
+fix flow gas addforce 0.1 0.0 0.0
+velocity frozen set 0 0 0
+#compute chunk all chunk/atom bin/cylinder x center 2 $(0.5*ly) $(0.5*lz) 0 $(ly) 5.0 10 discard yes
+compute chunk all chunk/atom bin/cylinder x lower $(lx) $(0.5*ly) $(0.5*lz) 0 $(v_R+2) 30 units box
+#fix velocity all ave/chunk 10 10 100 chunk vx norm all ave running file velocity.txt
+fix vx all ave/chunk 5 10 50 chunk vx ave running file velocity.txt
+
+variable vx atom vx
+compute keAtom all ke/atom
+variable etotal equal etotal
+compute displacement all displace/atom
+
+compute ix gas property/atom ix
+compute boundary_count gas reduce sum c_ix
+variable boundary_count_per_time equal c_boundary_count/time
+
+run 10000
