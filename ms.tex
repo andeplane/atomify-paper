@@ -232,7 +232,7 @@ The Knudsen number, $\text{Kn} = \lambda / R$ quantifies this and can be used to
 		\textcolor{atomify-blue}{Blue} atoms are fixed and do not move at all,
 		whereas the \textcolor{atomify-yellow}{yellow} atoms are thermalized with a Langevin\citep{schneider1978molecular} dissipative thermostat to mimick the heat exchange with the frozen bulk atoms.
 		The \textcolor{atomify-red}{red} and the \textcolor{atomify-green}{green} atoms are integrated normally, except the \textcolor{atomify-green}{green} gas atoms have an applied constant acceleration representing the pressure gradient.
-		Setting up and verifying this system is simple using Atomify due to the real-time coloring of groups and regions.
+		Setting up and verifying the system is simple using Atomify due to i.e. the real-time coloring of groups and regions.
     }
 	\label{fig:cylinder_simulation}
 \end{figure}
@@ -252,18 +252,19 @@ To achieve these properties of the system, the atoms are divided into multiple r
 
 \begin{itemize}  
 	\item $r \leq 10$: applied pressure gradient
-	\item $5 < r \leq 4$: regular time integration
-	\item $9 < r \leq 12$: Dissipative Langevin thermostat
-	\item $12 < r$: frozen.
+	\item $r \leq 17$: regular time integration
+	\item $14 < r \leq 17$: Dissipative Langevin thermostat
+	\item $17 < r$: frozen.
 \end{itemize}
 The different radii are in reduced Lennard Jones units.
 
 \subsection{Creating the initial geometry}
 We create a new script in Atomify using \keys{\cmd+N}, and save it (\keys{\cmd+S}) as \code{run.in}.
 Starting from the input script in listing \ref{lst:simple.in}, we modify it to create a larger simulation box with $(40\times25\times25)$ unit cells.
-Remove the line \code{fix nve all nve} so atoms will stand still (we will add integrator later anyway).
-We will modify this script to achieve what we described above, so we need to make sure that these commands happen \textit{before} the \code{run 1000} command in the script.
-If not, LAMMPS will not execute them before we start visualizing.
+Remove the line \code{fix nve all nve} so atoms will stand still (we will add integrator later).
+We will modify this script to achieve what we described above. To make sure LAMMPS executes our modifiction before visualization is started, we need to make sure that these commands happen \textit{before} the \code{run 1000} command.
+If we don't, LAMMPS will run 1000 timesteps before our modifications.
+
 To define the inner cylinder, we first specify the radius and the center before using the region command
 \begin{lstlisting}[basicstyle=\tiny, frame = none, numbers=none, framexleftmargin=0pt, xleftmargin=-0.75cm, xrightmargin=0.0cm]
 	variable R equal $(ly*0.25)
