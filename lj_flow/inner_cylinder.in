@@ -24,8 +24,15 @@ variable natoms_in_cylinder equal count(cylinder1)
 variable delete_fraction equal (${natoms_in_cylinder}-${natoms})/${natoms_in_cylinder}
 delete_atoms porosity cylinder1 ${delete_fraction} 12345
 
-region cylinder2 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+4) EDGE EDGE units box side out
+region cylinder2 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+4) EDGE EDGE units box
+region cylinder3 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+7) EDGE EDGE units box
+group cylinder2 region cylinder2
+group cylinder3 region cylinder3
 
+group nve region cylinder2
+group langevin subtract cylinder3 cylinder2
+group frozen subtract all cylinder3
+group gas dynamic all region cylinder1 every 1
 #region cylinder1 cylinder x $(0.5*ly) $(0.5*lz) $R EDGE EDGE
 #fix nve all nve
 run 2000

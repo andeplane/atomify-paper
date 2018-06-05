@@ -17,7 +17,7 @@
 \newcommand*{\cpp}{C\ensuremath{++}\xspace}
 
 \lstdefinelanguage{LAMMPS}{
-    morekeywords={units,atom_style,lattice,region,create_box,create_atoms,pair_style,pair_coeff,neigh_modify,mass,velocity,fix,run},
+    morekeywords={units,atom_style,lattice,region,create_box,create_atoms,pair_style,pair_coeff,neigh_modify,mass,velocity,fix,run, group every, equal, count, porosity, EDGE},
     sensitive=false, % keywords are not case-sensitive
     morecomment=[l]{//}, % l is for line comment
     morecomment=[s]{/*}{*/}, % s is for start and end delimiter
@@ -272,11 +272,15 @@ Since we have used \code{\$(0.5*lx)}, we need to specify \code{units box} in the
 	\includegraphics[width=0.5\textwidth]{figures/initial_configuration.pdf}
 	\caption{
 		Several snapshots of the process of creating the simulation in our case study.
+		This shows how one typically generate a geometry step by step where the immediate
+		feedback is very useful to quickly discover mistakes.
 		The wrongly placed cylinder is shown in a) whereas it is placed correctly in b).
+		c) shows how the system looks after deleting atoms to obtain $\rho = 0.01$. The next cylinder $C_2$ is shown in d),
+		and all regions (placed in groups) are shown in e). Here we have uniquely defined the purple shell which should have a dissipative thermostat.
+		In f), the list of all groups defined in this system is shown with colors matching those of e). All figures are rendered with Atomify.
     }
 	\label{fig:initial_configuration}
 \end{figure}
-
 We now want to delete atoms so that we have a certain density. The volume of the inner cylinder is $\pi R^2 L$ which can be calculated in lammps with \code{variable V equal PI*v\_R*v\_R*lx}.
 In these units, we have chosen that the atomic mass is 1 so number density $\rho$ equals the mass density $\rho_m$.
 The command \code{delete\_atoms} can be used: \code{delete\_atoms porosity region-ID fraction seed}, where we need to specify the fraction of the existing atoms in that region we want to delete.
@@ -294,9 +298,43 @@ The atoms inside the region can now be deleted. These steps can be done in LAMMP
 \end{lstlisting}
 and the result is shown in figure \ref{fig:initial_configuration}c.
 
-The next step now is to create the larger cylinder, containing the red atoms in figure \ref{fig:cylinder_simulation} where regular time integration will take place.
+The next step now is to create a larger cylinder, the one containing the red atoms in figure \ref{fig:cylinder_simulation}, where regular time integration will take place.
+This cylinder should have a slightly bigger radius as stated above and can be created with another region command:
+\begin{lstlisting}[basicstyle=\tiny, frame = none, numbers=none, framexleftmargin=0pt, xleftmargin=-0.75cm, xrightmargin=0.0cm]
+	region cylinder2 cylinder x $c $c $(v_R+4) EDGE EDGE
+\end{lstlisting}
+The expected result as can be seen in figure \ref{fig:initial_configuration}d.
+Now we have the inner cylinder with the gas atoms defined as a region and the next cylinder shell (including the gas atoms) defined as another region.
+We now want to create another shell, the one with the dissipative thermostat.
+All the atoms with the dissipative thermostat, the inner shell and the gas will be integrated with the \code{fix nve} integrator.
+Therefore, we create a slightly larger cylinder which will be the one defining the group for \code{fix nve}.
+We can also define the groups with these cylinders
+\begin{lstlisting}[basicstyle=\tiny, frame = none, numbers=none, framexleftmargin=0pt, xleftmargin=-0.75cm, xrightmargin=0.0cm]
+	region cylinder3 cylinder x $c $c $(v_R+7) EDGE EDGE
+	group cylinder1 region cylinder1
+	group cylinder2 region cylinder2
+	group cylinder3 region cylinder3
+	group nve region cylinder3
+\end{lstlisting}
+where we also have created the group \code{nve} for clarity.
+
+The dissipative thermostat will be \code{fix langevin}\citep{schneider1978molecular}, but it should only be applied on the outer shell defined by $C_3 \setminus C_2$,
+where $C_i$ is the set containing the atoms inside cylinder $i$.
+We can obtain this with the command
+\begin{lstlisting}[basicstyle=\tiny, frame = none, numbers=none, framexleftmargin=0pt, xleftmargin=-0.75cm, xrightmargin=0.0cm]
+	group langevin subtract cylinder3 cylinder2
+	group frozen subtract all cylinder3
+	group gas dynamic all region cylinder1 every 1
+\end{lstlisting}
+which will contain only the outer shell. 
+We here also created the group \code{frozen}, which is the outmost atoms, and the group \code{gas} which is dynamic since atoms may switch places and we want to only apply a force on the ones in the inner cylinder at any point in time.
+The frozen atoms will not move at all and make sure that the system does not start moving due to momentum transfer from the gas particles through the solid.
+All these groups are highlighted in figure \ref{fig:initial_configuration}e by hovering the box containing all the groups. in Atomify as shown in figure \ref{fig:initial_configuration}f.
+The colors of the atoms matches the group color next to the group name in figure \ref{fig:initial_configuration}f, where the order of coloring is the same as they were defined in the script.
+Therefore we see no green atoms (\code{cylinder1}) since all of these are in the groups \code{cylinder2}, \code{cylinder3}, \code{nve} and \code{gas}.
 
 \section{\label{sec:implementation}Implementation}
+
 
 Atomify runs a LAMMPS instance in the background that it issues commands to.
 The current state and atom positions are extracted from this instance for
