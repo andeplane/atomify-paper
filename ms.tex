@@ -8,7 +8,7 @@
 \usepackage{afterpage}
 \usepackage[hidelinks]{hyperref} 
 \usepackage{epstopdf}
-\usepackage{todo}
+\usepackage{todonotes}
 \usepackage{menukeys}
 \usepackage{siunitx}
 \usepackage{listings}
@@ -86,11 +86,11 @@ Also in biology, molecular dynamics is useful blabla.
 Over the years, increasingly sophisticated methods have been developed.
 For instance, a non-equilibrium method to measure thermal conductivity using heat exchange, was recently improved\citep{wirnsberger2015enhanced} to conserve energy better.
 To study first order phase transitions, methods like the generalized replica exchange method (gREM)\citep{kim2010generalized} can be used and nudge elastic band (NEB)\citep{henkelman2000climbing, henkelman2000improved} is often used to study energy barriers in for instance chemical reactions.
-In addition, a huge amount of force fields exists, each being good at different things.
+In addition, a huge amount of force fields exists, each being good at different properties\footnote{Some force fields are good at reproducing mechanical properties while others may be good at chemical reactions. This usually depends on what properties the force field was fitted to.}.
 New hardware and a sea of optimization tricks makes implementing a good molecular dynamics code a challenging task, not to mention maintaining it over time on new arcitechtures.
 Each new feature or technique like the ones metioned above, may take days, if not weeks, to develop, preventing researchers to work on their scientific projects.
 
-Thanksfully, there already exists several software packages for atomistic simulations, many of which have been developed for more than two decades\footnote{\url{https://en.wikipedia.org/wiki/Comparison_of_software_for_molecular_mechanics_modeling} compares different softwares for molecular modeling.}.
+Thankfully, there already exists several software packages for atomistic simulations, many of which have been developed for more than two decades\footnote{\url{https://en.wikipedia.org/wiki/Comparison_of_software_for_molecular_mechanics_modeling} compares different softwares for molecular modeling.}.
 Some of these packages, such as LAMMPS\citep{Plimpton1995Fast}, Gromacs\citep{berendsen1995gromacs}, NAMD\citep{Phillips2005Scalable} and CHARMM\citep{brooks2009charmm}, are open source and being actively developed with hundreds of contributers.
 %After the rise of powerful graphical processing units (GPU's), most of these codes eventually added support of using accelerators\citep{brown2011implementing}.
 
@@ -175,12 +175,35 @@ Details about how Atomify runs LAMMPS is found in section \ref{sec:implementatio
 Finally, we summarize the work in our paper in section \ref{sec:conclusion} with some thoughts about future outlooks in section \ref{sec:future}.
 
 \section{\label{sec:features}Summary of features}
-The main features of Atomify is summarized as script editing,
+The main features of Atomify can be summarized as script editing,
 real-time visualization and plotting of physical quantities.
+This turns out to improve the workflow substantially.
 In addition, Atomify comes with multiple examples,
 many of which have been made by members of the LAMMPS community.
-It provides a lightweight script editor with syntax highlighting and line numbers.
 
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\textwidth]{figures/rightbar.pdf}
+	\caption{
+		The rightbar is a powerful feature in Atomify where relevant
+		properties from LAMMPS is presented real-time.
+		In a), a list of all groups defined is shown with the current atom count.
+		b) shows all defined regions. Each group and region can be hovered so that atoms
+		are colored after what group / region they are in. If an atom is in multiple
+		groups or regions, they will get the color of the latest one defined.
+		The color boxes can be clicked which will either always highlight the atoms in a certain group or region,
+		or if clicked again, hide all of them.
+		In c) and d), a list of all variables and computes is shown. If a variable or compute
+		produces a scalar, the current value is shown as can be seen with all the variables.
+		By clicking the name, a plot will show up showing the time evolution of that quantity.
+		If a per-atom variable or compute is hovered, all atoms will be colored according to their
+		current scalar value and a histogram over these values is shown if clicked.
+		The result of hovering atoms defined by the groups in our case study is shown in figure \ref{fig:cylinder_simulation}.
+    }
+	\label{fig:rightbar}
+\end{figure}
+
+It provides a lightweight script editor with syntax highlighting and line numbers.
 Multiple files can be open at the same time and the state persist across working sessions.
 The script can easily be restarted by clicking the button in the GUI or using
 the default shortcut (\keys{Ctrl+R} in Windows and Linux or \keys{\cmd+R} in macOS).
@@ -188,9 +211,9 @@ This enables the user to get immediate visual feedback on changes in the script.
 
 \section{\label{sec:casestudy}Case study: flow through nanoporous media}
 \todo{Short motivation about flow in nanoporous media with references}
-Fluid flow is often characterized with permeability, the inverse flow resistance of a material.
+Fluid flow in porous media is often characterized with permeability, the inverse flow resistance of a material.
 The permeability can be measured using Darcy's law when applying a pressure gradient.
-However, the derivation of Darcy's law assume no-slip boundary conditions, i.e. the fluid velocity is zero at the boundary of a channel.
+However, the derivation of Darcy's law assume no-slip boundary conditions, i.e. the fluid velocity is zero at the boundary of a channel. (ref)
 This is a good approximation for liquids in large pores, but if the channel diameter $L$ is similar or smaller than the mean free path of the fluid $\lambda$, this is no longer the case.
 The Knudsen number, $\text{Kn} = \lambda / L$ quantifies this and can be used with the Klinkenberg correction to correctly describe the effective permeability as a function of pressure in the high Knudsen number limit.
 
@@ -209,8 +232,8 @@ The Knudsen number, $\text{Kn} = \lambda / L$ quantifies this and can be used wi
 	\label{fig:cylinder_simulation}
 \end{figure}
 
-In this case study, we will use Atomify to measure the velocity profile of a Lennard Jones gas with varying density to observe the slip velocity effect at low densities.
-We will create a nanotube inside a Lennard Jones solid of size  $(40\times20\times20)$ unit cells, reduced density $\rho^* = 0.8442$, where the fluid will flow due to an induced pressure gradient, see figure \ref{fig:cylinder_simulation}.
+In this case study, we will use Atomify to measure the velocity profile of a Lennard Jones gas inside a nanotube with varying density to observe the slip velocity effect at low densities.
+We will create the nanotube inside a Lennard Jones solid of size  $(40\times20\times20)$ unit cells, reduced density $\rho^* = 0.8442$, where the fluid will flow due to an induced pressure gradient, see figure \ref{fig:cylinder_simulation}.
 Here we apply a pressure gradient $\nabla P$ in the $x$-direction on the gas atoms using a constant acceleration $a$ calculated as
 \begin{align}
 	a = \frac{\nabla P}{\rho_m},
@@ -230,18 +253,48 @@ To achieve these properties of the system, the atoms are divided into multiple r
 \end{itemize}
 
 \subsection{Creating the initial geometry}
-We create a new script in Atomify using \keys{\cmd+R}, and save it (\keys{\cmd+S}) as \code{run.in}.
+We create a new script in Atomify using \keys{\cmd+N}, and save it (\keys{\cmd+S}) as \code{run.in}.
 Starting from the input script in listing \ref{lst:simple.in}, we modify it to create a larger simulation box with $(40\times20\times20)$ unit cells.
-Then, to define the inner cylinder, we first specify the radius and the center before the region command:
+Then, to define the inner cylinder, we first specify the radius and the center before using the region command:
 \begin{lstlisting}[basicstyle=\tiny, frame = none, numbers=none, framexleftmargin=0pt, xleftmargin=-0.75cm, xrightmargin=0.0cm]
 	variable R equal $(ly*0.25)
 	variable c equal $(ly*0.5)
 	region cylinder1 cylinder x $c $c $R EDGE EDGE
 \end{lstlisting}
-which gives 
+The region command will create a cylinder in the $x$-direction, with $(y,z)$-coordinates at the system center \code{\$c} with radius \code{\$R} using the full length of the cylinder specified when using \code{EDGE}.
+As shown in figure \ref{fig:rightbar}, we can hover the specified region to highlight the atoms in that region.
+When we hover the region, we immediately see that the cylinder is in fact not placed at the center of the system, as shown in figure \ref{fig:initial_configuration}a.
+The reason is that LAMMPS operate with two different units, either the length unit or the lattice length unit. This is explained in the documentation, but is a common mistake.
+Since we have used \code{\$(0.5*lx)}, we need to specify \code{units box} in the region command which gives the desired result in figure  \ref{fig:initial_configuration}b.
 
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\textwidth]{figures/initial_configuration.pdf}
+	\caption{
+		Several snapshots of the process of creating the simulation in our case study.
+		The wrongly placed cylinder is shown in a) whereas it is placed correctly in b).
+    }
+	\label{fig:initial_configuration}
+\end{figure}
 
+We now want to delete atoms so that we have a certain density. The volume of the inner cylinder is $\pi R^2 L$ which can be calculated in lammps with \code{variable V equal PI*v\_R*v\_R*lx}.
+In these units, we have chosen that the atomic mass is 1 so number density $\rho$ equals the mass density $\rho_m$.
+The command \code{delete\_atoms} can be used: \code{delete\_atoms porosity region-ID fraction seed}, where we need to specify the fraction of the existing atoms in that region we want to delete.
+To count the number of atoms inside a region, we first create a group containing all the atoms in the region and then create a variable that counts them.
+Assuming a density $\rho = 0.05$, we can calculate the expected number inside the cylinder as $N = V\rho$.
+The atoms inside the region can now be deleted. These steps can be done in LAMMPS like this
+\begin{lstlisting}[basicstyle=\tiny, frame = none, numbers=none, framexleftmargin=0pt, xleftmargin=-0.75cm, xrightmargin=0.0cm]
+	group cylinder1 region cylinder1
+	variable N_cyl equal count(cylinder1)
+	variable V equal PI*v_R*v_R*lx
+	variable rho equal 0.1
+	variable N_wanted equal $V*${rho}
+	variable delete_fraction equal (${N_cyl}-${N_wanted})/${N_cyl}
+	delete_atoms porosity cylinder1 ${delete_fraction} 1234
+\end{lstlisting}
+and the result is shown in figure \ref{fig:initial_configuration}c.
 
+The next step now is to create the larger cylinder, containing the red atoms in figure \ref{fig:cylinder_simulation} where regular time integration will take place.
 
 \section{\label{sec:implementation}Implementation}
 

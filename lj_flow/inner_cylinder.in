@@ -1,0 +1,31 @@
+#/camera position -58.7529 37.5079 32.1119
+#/camera viewcenter 33.5919 16.796 16.796
+
+units lj
+atom_style atomic
+lattice fcc 0.8442
+region box block 0 40 0 20 0 20
+create_box 1 box
+create_atoms 1 box
+mass 1 1.0
+velocity all create 1.0 87287
+pair_style lj/cut 2.5
+pair_coeff 1 1 1.0 1.0 2.5
+neigh_modify every 1 delay 0 check yes
+
+variable R equal 0.25*ly
+region cylinder1 cylinder x $(0.5*ly) $(0.5*lz) $R EDGE EDGE units box
+
+group cylinder1 region cylinder1
+variable V equal PI*v_R*v_R*lx
+variable rho equal 0.1
+variable natoms equal $V*${rho}
+variable natoms_in_cylinder equal count(cylinder1)
+variable delete_fraction equal (${natoms_in_cylinder}-${natoms})/${natoms_in_cylinder}
+delete_atoms porosity cylinder1 ${delete_fraction} 12345
+
+region cylinder2 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+4) EDGE EDGE units box side out
+
+#region cylinder1 cylinder x $(0.5*ly) $(0.5*lz) $R EDGE EDGE
+#fix nve all nve
+run 2000
