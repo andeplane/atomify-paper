@@ -4,7 +4,7 @@
 units lj
 atom_style atomic
 lattice fcc 0.8442
-region box block 0 40 0 20 0 20
+region box block 0 40 0 25 0 25
 create_box 1 box
 create_atoms 1 box
 mass 1 1.0
@@ -13,7 +13,7 @@ pair_style lj/cut 2.5
 pair_coeff 1 1 1.0 1.0 2.5
 neigh_modify every 1 delay 0 check yes
 
-variable R equal 0.25*ly
+variable R equal 10
 region cylinder1 cylinder x $(0.5*ly) $(0.5*lz) $R EDGE EDGE units box
 
 group cylinder1 region cylinder1
@@ -53,4 +53,4 @@ compute ix gas property/atom ix
 compute boundary_count gas reduce sum c_ix
 variable boundary_count_per_time equal c_boundary_count/time
 
-run 10000
+run 2000

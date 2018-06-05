@@ -91,15 +91,15 @@ New hardware and a sea of optimization tricks makes implementing a good molecula
 Each new feature or technique may take days, if not weeks, to develop, preventing researchers to work on their scientific projects.
 
 Thankfully, there already exists several software packages for atomistic simulations, many of which have been developed for more than two decades\footnote{\url{https://en.wikipedia.org/wiki/Comparison_of_software_for_molecular_mechanics_modeling} compares different softwares for molecular modeling.}.
-Some of these packages, such as LAMMPS\citep{Plimpton1995Fast}, Gromacs\citep{berendsen1995gromacs}, NAMD\citep{Phillips2005Scalable} and CHARMM\citep{brooks2009charmm}, are open source and being actively developed with hundreds of contributers.
+Some of these packages, such as LAMMPS\citep{Plimpton1995Fast}, Gromacs\citep{berendsen1995gromacs}, NAMD\citep{Phillips2005Scalable} and CHARMM\citep{brooks2009charmm}, are open source and being actively developed with hundreds of contributers\footnote{See their repositories on i.e. GitHub for an overview of contributers.}.
 %After the rise of powerful graphical processing units (GPU's), most of these codes eventually added support of using accelerators\citep{brown2011implementing}.
 
 \lstinputlisting[language=LAMMPS,caption={A minimal LAMMPS input script that simulates a Lennard Jones solid at reduced temperature $T^* = 1.0$ with a reduced density of $\rho^* = 0.8442$.},label={lst:simple.in}]{simple.in}
 
 The work in this paper is focused on LAMMPS.
-Although the software is well-documented\footnote{The LAMMPS documentation is known for being very detailed and precise.} and enables the user to perform advanced simulations, it can be demanding to learn how to use it well.
+Although the software is well-documented\footnote{The LAMMPS documentation is known for being very detailed and precise.}, and enables the user to perform advanced simulations, it can be a demanding task to learn how to use it well.
 The core principles of molecular dynamics is so simple that high school students can easily understand the concepts, but even undergraduate students may have problems with the terminology of statistical mechanics which is used in several of the commands.
-For instance, to simulate an \textit{NVE} simulation (constant number of particles $N$, volume $V$ and energy $E$), we use the \code{fix nve} command.
+For instance, to simulate an \textit{NVE} simulation (constant number of particles $N$, volume $V$ and energy $E$), we use the \code{fix nve} command which defines the time integration.
 
 A LAMMPS simulation is performed by a series of commands, which are executed one by one.
 LAMMPS has a huge list of implemented features which makes it very flexible, especially with its own, powerful scripting language.
@@ -107,11 +107,15 @@ In listing \ref{lst:simple.in}, we show an example of a minimalistic LAMMPS scri
 This simulation does not print much thermodynamic data, but it creates a file \code{trajectory.bin} which containes the trajectory of all atoms at every timestep.
 Other programs such as VMD\citep{Humphrey1996Vmd} or OVITO\citep{Stukowski2009Visualization} can be used to visualize the file as a postprocessing step.
 
-If we want to measure physical quantities such as energy, temperature and stress, they can be accessed through a series of commands called \textit{computes}.
+If we want to measure physical quantities such as energy, temperature and stress, they can be accessed through commands called \textit{computes}.
 For instance, the commands \code{compute ke} and \code{compute pe} measures the kinetic and the potential energy.
-Using \textit{fixes}, we can create time averages and save these quantities to one or more files for plotting and further analysis.
+Using \textit{fixes}, we can create time averages and save them to one or more files for plotting and further analysis.
 We also often put atoms in different \textit{groups}, either by their position being in a \textit{region}, or their atom type or more advanced criteria.
 Performing different operations on different groups, or just measuring physical quantities on a specific group is then easily done since almost all commands have \code{group} as an input parameter.
+With this flexibility, it may be difficult to do everything right immediately.
+Complicated regions and group defines are often necessary to perform the intended simulation, and a lot of time can be spent in the prototyping process, especially since information about groups and regions are not automatically written to a trajectory file.
+A simulation typically involves writing the LAMMPS script in a text editor before the simulation is performed in the terminal for a while before the trajectories and time series are studied to verify the correctness which often turn out to be bad.
+Plotting of time series also requires the user to write a script in i.e. Python or MATLAB which does the plotting, but these steps are often performed manually.
 
 \begin{figure*}
 	\centering
@@ -125,16 +129,14 @@ Performing different operations on different groups, or just measuring physical 
 \end{figure*}
 
 The lack of an intuitive GUI and visualization\footnote{GUI is listed as a non-feature on the LAMMPS web page: \url{http://lammps.sandia.gov/non_features.html}.}
-makes the workflow complicated, see Fig. \ref{fig:flowchart}.
-A simulation with full analysis usually involves writing the script in a text editor, running the simulation using the terminal before analysis is done with a visualization program and additional scripts written in MATLAB or Python.
-When creating a new simulation, the initial state (system box, positions of all particles, groups and regions) can be tricky to set up right, especially since groups and regions are not automatically written to the output file through the \code{dump} command.
+makes this workflow complicated, see Fig. \ref{fig:flowchart}.
 The time from an idea to a visual feedback can then be destructive for the creativity where immediate feedback would be ideal.
 
 We have solved this problem by creating Atomify, a real-time LAMMPS visualizer that combines script editing, simulation, visualization, and analysis in one single application.
 It uses LAMMPS as a library and hooks into the LAMMPS simulation cycle so synchronization of atom positions and physical quantities can be performed as often as every timestep.
 Most features of LAMMPS are automatically supported, except a few due to technical reasons discussed in section \ref{sec:future}.
 
-The visualization is performed using the powerful Qt3D library where advanced rendering techniques such as billboard raytracing is used to achieve maximum performance.
+The visualization is performed using the powerful Qt3D library where we have implemented advanced rendering techniques such as billboard raytracing to achieve maximum performance.
 This allows visualization of millions of atoms with good framerate on modern desktop computers.
 Atomify is designed with simplicity as its main goal.
 
@@ -147,7 +149,7 @@ as thermodynamics, geophysics, and biology.
 
 \begin{figure*}
 	\centering
-	\includegraphics[width=0.9\textwidth]{gui.png}
+	\includegraphics[width=\textwidth]{gui.png}
 	\caption{%
     Overview of the Graphical User Interface (GUI) in Atomify.
     The toolbar (1) is used to change between the different modes, such as 
@@ -210,19 +212,22 @@ the default shortcut (\keys{Ctrl+R} in Windows and Linux or \keys{\cmd+R} in mac
 This enables the user to get immediate visual feedback on changes in the script.
 
 \section{\label{sec:casestudy}Case study: flow through nanoporous media}
-\todo{Short motivation about flow in nanoporous media with references}
+The features of Atomify is best presented through a case study where many of the features are useful to be productive in the script development.
+We have chosen to create a system with fluid flow inside a tight nanochannel.
+This involves creating a somewhat complicated initial geometry with multiple regions where we apply different tricks such as dissipative thermostats, constant force mimicking applied pressure gradient and frozen atoms to avoid net momentum of the solid.
+
 Fluid flow in porous media is often characterized with permeability, the inverse flow resistance of a material.
 The permeability can be measured using Darcy's law when applying a pressure gradient.
 However, the derivation of Darcy's law assume no-slip boundary conditions, i.e. the fluid velocity is zero at the boundary of a channel. (ref)
-This is a good approximation for liquids in large pores, but if the channel diameter $L$ is similar or smaller than the mean free path of the fluid $\lambda$, this is no longer the case.
-The Knudsen number, $\text{Kn} = \lambda / L$ quantifies this and can be used with the Klinkenberg correction\citep{klinkenberg1941permeability} to correctly describe the effective permeability as a function of pressure in the high Knudsen number limit.
+This is a good approximation for liquids in larger pores, but if the channel size $R$ is of the same order, or larger, as the mean free path $\lambda$ of the fluid, this is no longer true. (ref)
+The Knudsen number, $\text{Kn} = \lambda / R$ quantifies this and can be used to apply Klinkenberg correction\citep{klinkenberg1941permeability} to correctly describe the effective permeability as a function of pressure in the high Knudsen number limit.
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.5\textwidth]{lj_flow/configuration.png}
 	\caption{
 		Initial configuration in our case study simulation.
-		A periodic box consisting of $(40\times20\times20)$ FCC unit cells with reduced density $\rho^* = 0.8442$ where we will have gas flow in a cylinder of 5 unit cell radius.
+		A periodic box consisting of $(40\times25\times25)$ FCC unit cells with reduced density $\rho^* = 0.8442$ where we will have gas flow in a cylinder with radius 10 (reduced length).
 		The different colors indicate the regions of which different integration rules apply.
 		\textcolor{atomify-blue}{Blue} atoms are fixed and do not move at all,
 		whereas the \textcolor{atomify-yellow}{yellow} atoms are thermalized with a Langevin\citep{schneider1978molecular} dissipative thermostat to mimick the heat exchange with the frozen bulk atoms.
@@ -233,28 +238,29 @@ The Knudsen number, $\text{Kn} = \lambda / L$ quantifies this and can be used wi
 \end{figure}
 
 In this case study, we will use Atomify to measure the velocity profile of a Lennard Jones gas inside a nanotube with varying density to observe the slip velocity effect at low densities.
-We will create the nanotube inside a Lennard Jones solid of size  $(40\times20\times20)$ unit cells, reduced density $\rho^* = 0.8442$, where the fluid will flow due to an induced pressure gradient, see Fig. \ref{fig:cylinder_simulation}.
+We will create the nanotube inside a Lennard Jones solid of size  $(40\times25\times25)$ unit cells with reduced density $\rho^* = 0.8442$. The fluid in the nanochannel, or cylinder, will flow due to an induced pressure gradient, see Fig. \ref{fig:cylinder_simulation}.
 Here we apply a pressure gradient $\nabla P$ in the $x$-direction on the gas atoms using a constant acceleration $a$ calculated as
 \begin{align}
 	a = \frac{\nabla P}{\rho_m},
 \end{align}
 where $\rho_m$ is the mass density of the gas atoms.
 Applying such an acceleration means adding energy to the system which in turn will increase the temperature and eventually melt the system.
-We want to couple the solid to an external heat bath so the added energy can be transferred out through a thermostat.
+To avoid this, we will couple the solid to an external heat bath so the added energy can be transferred away from the system through a thermostat.
 Even though we only apply a pressure gradient on the gas atoms, this induced momentum will also be transferred to the solid atoms which eventually will start moving in the positive $x$-direction which is not desired.
-We therefore freeze the outmost atoms.
+We therefore freeze the outmost atoms (blue in Fig \ref{fig:cylinder_simulation}).
 To achieve these properties of the system, the atoms are divided into multiple regions, which are integrated differently:
 
 \begin{itemize}  
-	\item $r \leq 5$: applied pressure gradient
-	\item $5 < r \leq 9$: regular time integration
+	\item $r \leq 10$: applied pressure gradient
+	\item $5 < r \leq 4$: regular time integration
 	\item $9 < r \leq 12$: Dissipative Langevin thermostat
 	\item $12 < r$: frozen.
 \end{itemize}
+The different radii are in reduced Lennard Jones units.
 
 \subsection{Creating the initial geometry}
 We create a new script in Atomify using \keys{\cmd+N}, and save it (\keys{\cmd+S}) as \code{run.in}.
-Starting from the input script in listing \ref{lst:simple.in}, we modify it to create a larger simulation box with $(40\times20\times20)$ unit cells.
+Starting from the input script in listing \ref{lst:simple.in}, we modify it to create a larger simulation box with $(40\times25\times25)$ unit cells.
 Remove the line \code{fix nve all nve} so atoms will stand still (we will add integrator later anyway).
 We will modify this script to achieve what we described above, so we need to make sure that these commands happen \textit{before} the \code{run 1000} command in the script.
 If not, LAMMPS will not execute them before we start visualizing.
