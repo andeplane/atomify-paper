@@ -79,16 +79,16 @@ Much has happened since the first molecular dynamics simulation of hard spheres 
 The computing power has seen a tremendous increase from the CDC 3600 used in \citep{rahman1964correlations}, which performed less than 1 million instructions per second whereas modern 3 Ghz processors in typical laptops can do about 100 billion instructions per seconds.
 With this rapidly increase of computing power, the lengthscales and timescales achievable in numeriments\footnote{Numeriment is a numerical experiment, or a simulation on the computer.} is finally catching up with some experiments (ref).
 
-In molecular dynamics, a set of atoms is integrated using Newton's second law in a classical force field so the full phase space is known at all times and statistical properties can be calculated from averages assuming ergodicity.
-It has been prooved successful in reproducing and explaining multiple phenomenon such as mechanical properties \citep{jiang2009young, campbell1999structural, ning2012mechanical}, chemical reactions \citep{van2001reaxff, brenner2002second}, liquid properties\citep{allen2017computer}.
-Also in biology, molecular dynamics is useful blabla.
+In molecular dynamics, a set of atoms is integrated using Newton's second law in a classical force field so the full coordinate in the phase space is known at all times, and statistical properties can be calculated from averages assuming ergodicity\citep{martyna1994constant}.
+The model has been proved successful in reproducing and explaining many phenomenon such as mechanical properties \citep{jiang2009young, campbell1999structural, ning2012mechanical}, chemical reactions \citep{van2001reaxff, brenner2002second}, liquid properties\citep{allen2017computer}.
+Also in biology, molecular dynamics is useful blabla. \todo{Add more nice references here}
 
 Over the years, increasingly sophisticated methods have been developed.
-For instance, a non-equilibrium method to measure thermal conductivity using heat exchange, was recently improved\citep{wirnsberger2015enhanced} to conserve energy better.
-To study first order phase transitions, methods like the generalized replica exchange method (gREM)\citep{kim2010generalized} can be used and nudge elastic band (NEB)\citep{henkelman2000climbing, henkelman2000improved} is often used to study energy barriers in for instance chemical reactions.
+For instance, a non-equilibrium method to measure thermal conductivity using heat exchange, was recently improved\citep{wirnsberger2015enhanced} to conserve energy better than the previous method\citep{ikeshoji1994non}.
+To study first order phase transitions, methods like the generalized replica exchange method (gREM)\citep{kim2010generalized} can be used, and nudge elastic band (NEB)\citep{henkelman2000climbing, henkelman2000improved} is often used to study energy barriers in for instance chemical reactions.
 In addition, a huge amount of force fields exists, each being good at different properties\footnote{Some force fields are good at reproducing mechanical properties while others may be good at chemical reactions. This usually depends on what properties the force field was fitted to.}.
-New hardware and a sea of optimization tricks makes implementing a good molecular dynamics code a challenging task, not to mention maintaining it over time on new arcitechtures.
-Each new feature or technique like the ones metioned above, may take days, if not weeks, to develop, preventing researchers to work on their scientific projects.
+New hardware and a sea of optimization tricks makes implementing a good molecular dynamics code a challenging task, not to mention maintaining it over time when new arcitechtures are being released.
+Each new feature or technique may take days, if not weeks, to develop, preventing researchers to work on their scientific projects.
 
 Thankfully, there already exists several software packages for atomistic simulations, many of which have been developed for more than two decades\footnote{\url{https://en.wikipedia.org/wiki/Comparison_of_software_for_molecular_mechanics_modeling} compares different softwares for molecular modeling.}.
 Some of these packages, such as LAMMPS\citep{Plimpton1995Fast}, Gromacs\citep{berendsen1995gromacs}, NAMD\citep{Phillips2005Scalable} and CHARMM\citep{brooks2009charmm}, are open source and being actively developed with hundreds of contributers.
