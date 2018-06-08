@@ -59,7 +59,8 @@ xrightmargin=0.1cm}
 %
 The typical workflow when running atomistic simulations includes working with several programs.
 A text editor is needed to create and modify the scripts, the terminal to run the simulation, and programs like VMD or Ovito to visualize the system over time.
-If physical quantities are computed, the data is often plotted with MATLAB or Python, where additional scripts must be used.
+If physical quantities are computed, the data is often plotted using programming languages like MATLAB or Python,
+where additional scripts must be used.
 This is a tedious process, especially for teaching purposes and for people who are new in the field.
 We here introduce Atomify; a high performance real-time visualizer for atomistic simulations that can simulate and render more than one million atoms with excellent frame rate on modern hardware.
 Atomify supports OpenMP acceleration, GPU acceleration, real-time plotting of physical quantities, and an easy-to-use code editor in one single application.
@@ -169,11 +170,16 @@ The features of Atomify is best presented through a case study where many of the
 We have chosen to create a system with fluid flow inside a tight nanochannel.
 This involves creating a somewhat complicated initial geometry with multiple regions where we apply different tricks such as dissipative thermostats, constant force mimicking applied pressure gradient and frozen atoms to avoid net momentum of the solid.
 
-Fluid flow in porous media is often characterized with permeability, the inverse flow resistance of a material.
+Fluid flow in porous media is often characterized with permeability,
+which is the inverse flow resistance of a material.
 The permeability can be measured using Darcy's law when applying a pressure gradient.
-However, the derivation of Darcy's law assume no-slip boundary conditions, i.e. the fluid velocity is zero at the boundary of a channel. (ref)
-This is a good approximation for liquids in larger pores, but if the channel size $R$ is of the same order, or larger, as the mean free path $\lambda$ of the fluid, this is no longer true. (ref)
-The Knudsen number, $\text{Kn} = \lambda / R$ quantifies this and can be used to apply Klinkenberg correction\citep{klinkenberg1941permeability} to correctly describe the effective permeability as a function of pressure in the high Knudsen number limit.
+However, the derivation of Darcy's law assume no-slip boundary conditions,
+which means that the fluid velocity is zero at the boundary of a channel. (ref)
+\todo[inline]{no-slip eller non-slip?}
+A no-slip boundary conditions is a good approximation for liquids in larger pores,
+but if the channel size $R$ is of the same order,
+or larger, as the mean free path $\lambda$ of the fluid, this condition is no longer true. (ref)
+The Knudsen number, $\text{Kn} = \lambda / R$ quantifies this relation and can be used to apply Klinkenberg correction\citep{klinkenberg1941permeability} to correctly describe the effective permeability as a function of pressure in the high Knudsen number limit.
 
 \begin{figure}
 	\centering
@@ -191,14 +197,18 @@ The Knudsen number, $\text{Kn} = \lambda / R$ quantifies this and can be used to
 \end{figure}
 
 In this case study, we will use Atomify to measure the velocity profile of a Lennard Jones gas inside a nanotube with varying density to observe the slip velocity effect at low densities.
-We will create the nanotube inside a Lennard Jones solid of size  $(40\times25\times25)$ unit cells with reduced density $\rho^* = 0.8442$. The fluid in the nanochannel, or cylinder, will flow due to an induced pressure gradient, see Fig. \ref{fig:cylinder_simulation}.
+
+We create the nanotube inside a Lennard Jones solid of size  $(40\times25\times25)$ unit cells with reduced density $\rho^* = 0.8442$.
+The fluid in the nanochannel, or cylinder, will flow due to an induced pressure gradient, see Fig. \ref{fig:cylinder_simulation}.
 Here we apply a pressure gradient $\nabla P$ in the $x$-direction on the gas atoms using a constant acceleration $a$ calculated as
 \begin{align}
 	a = \frac{\nabla P}{\rho_m},
 \end{align}
 where $\rho_m$ is the mass density of the gas atoms.
+
 Applying such an acceleration means adding energy to the system which in turn will increase the temperature and eventually melt the system.
 To avoid this, we will couple the solid to an external heat bath so the added energy can be transferred away from the system through a thermostat.
+
 Even though we only apply a pressure gradient on the gas atoms, this induced momentum will also be transferred to the solid atoms which eventually will start moving in the positive $x$-direction which is not desired.
 We therefore freeze the outmost atoms (blue in Fig \ref{fig:cylinder_simulation}).
 To achieve these properties of the system, the atoms are divided into multiple regions, which are integrated differently:
@@ -215,6 +225,7 @@ The different radii are in reduced Lennard Jones units.
 We create a new script in Atomify using \keys{\cmd+N}, and save it (\keys{\cmd+S}) as \code{run.in}.
 Starting from the input script in listing \ref{lst:simple.in}, we modify it to create a larger simulation box with $(40\times25\times25)$ unit cells.
 Remove the line \code{fix nve all nve} so atoms will stand still (we will add integrator later).
+
 We will modify this script to achieve what we described above. To make sure LAMMPS executes our modifiction before visualization is started, we need to make sure that these commands happen \textit{before} the \code{run 1000} command.
 If we don't, LAMMPS will run 1000 timesteps before our modifications.
 
@@ -225,8 +236,10 @@ To define the inner cylinder, we first specify the radius and the center before 
 	region cylinder1 cylinder x $c $c $R EDGE EDGE
 \end{lstlisting}
 The region command will create a cylinder in the $x$-direction, with $(y,z)$-coordinates at the system center \code{\$c} with radius \code{\$R} using the full length of the cylinder specified when using \code{EDGE}.
+
 We now press \keys{\cmd+R} to run the simulation to see how it looks.
 As shown in Fig. \ref{fig:rightbar}, we can hover the specified region to highlight the atoms in that region.
+
 When we hover the region, we immediately see that the cylinder is in fact not placed at the center of the system, as shown in Fig. \ref{fig:initial_configuration}a.
 The reason is that LAMMPS operate with two different units, either the length unit or the lattice length unit. This is explained in the documentation, but is a common mistake.
 To discover mistakes like this is quickly done with Atomify.
@@ -246,7 +259,7 @@ Since we have used \code{\$(0.5*lx)}, we need to specify \code{units box} in the
     }
 	\label{fig:initial_configuration}
 \end{figure}
-We now want to delete atoms so that we have a certain density. The volume of the inner cylinder is $\pi R^2 L$ which can be calculated in lammps with \code{variable V equal PI*v\_R*v\_R*lx}.
+We now want to delete atoms so that we have a certain density. The volume of the inner cylinder is $\pi R^2 L$ which can be calculated in LAMMPS with \code{variable V equal PI*v\_R*v\_R*lx}.
 In these units, we have chosen that the atomic mass is 1 so number density $\rho$ equals the mass density $\rho_m$.
 The command \code{delete\_atoms} can be used: \code{delete\_atoms porosity region-ID fraction seed}, where we need to specify the fraction of the existing atoms in that region we want to delete.
 To count the number of atoms inside a region, we first create a group containing all the atoms in the region and then create a variable that counts them.
@@ -262,6 +275,7 @@ The atoms inside the region can now be deleted. These steps can be done in LAMMP
 	delete_atoms porosity cylinder1 ${delete_fraction} 1234
 \end{lstlisting}
 and the result is shown after rerunning again with \keys{\cmd+R}, see Fig. \ref{fig:initial_configuration}c.
+
 This is a powerful workflow Atomify enables where very quick changes can be tested with immediate feedback.
 Every time we add a new command, we just rerun with \keys{\cmd+R} to see what happens.
 
@@ -299,6 +313,7 @@ We can obtain this with the command
 which will contain only the outer shell.
 We here also created the group \code{frozen}, which is the outmost atoms, and the group \code{gas} which is dynamic since atoms may switch places and we want to only apply a force on the ones in the inner cylinder at any point in time.
 The frozen atoms will not move at all and make sure that the system does not start moving due to momentum transfer from the gas particles through the solid.
+
 All these groups are highlighted in Fig. \ref{fig:initial_configuration}e by hovering the box containing all the groups. in Atomify as shown in Fig. \ref{fig:initial_configuration}f.
 The colors of the atoms matches the group color next to the group name in Fig. \ref{fig:initial_configuration}f, where the order of coloring is the same as they were defined in the script.
 We there don't any green atoms (\code{cylinder1}) since all of these are in the groups \code{cylinder2}, \code{cylinder3}, \code{nve} and \code{gas}.
