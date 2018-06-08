@@ -1,12 +1,12 @@
 \documentclass[aps,pre,twocolumn,letterpaper,floatfix,nofootinbib]{revtex4}
 	% for \code color
 \usepackage[dvipsnames]{xcolor}
-\usepackage{graphicx} 
-\usepackage{amsmath,amssymb,amsfonts} 
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsfonts}
 \usepackage{mathtools}
 \usepackage{pdfpages}
 \usepackage{afterpage}
-\usepackage[hidelinks]{hyperref} 
+\usepackage[hidelinks]{hyperref}
 \usepackage{epstopdf}
 \usepackage{todonotes}
 \usepackage{menukeys}
@@ -25,11 +25,11 @@
 }
 
 \lstset{
-numbers=left, 
-numberstyle=\small, 
-numbersep=8pt, 
-frame = single, 
-language=LAMMPS, 
+numbers=left,
+numberstyle=\small,
+numbersep=8pt,
+frame = single,
+language=LAMMPS,
 framexleftmargin=15pt,
 xleftmargin=0.65cm,
 xrightmargin=0.1cm}
@@ -47,10 +47,10 @@ xrightmargin=0.1cm}
 
 \title{Increased productivity using Atomify - a real-time LAMMPS visualizer}
 \author{Anders Hafreager$^1$}
-\author{Svenn-Arne Dragly$^{1}$} 
+\author{Svenn-Arne Dragly$^{1}$}
 %\author{Anders Malthe-S\o renssen$^1$}
 \affiliation{$^1$Department of Physics - University of Oslo\\Sem S{\ae}lands vei 24, NO-0316, Oslo, Norway }
-\date{\today} 
+\date{\today}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -66,29 +66,56 @@ Atomify supports OpenMP acceleration, GPU acceleration, real-time plotting of ph
 It currently uses LAMMPS as physics engine, but it can be extended to support other codes like Gromacs, NAMD or OpenMM.
 Atomify is open-source software (GPL) written in C++ using the Qt framework.
 %
-\end{abstract} 
- 
+\end{abstract}
+
 \maketitle
 
 \section{Introduction}
-Atomistic simulations insight blabla
-Important blabla
 
-Tools like, script editors, simulators, Ovito VMD defines the workflow.
+Atomistic simulations are used in to materials modeling to provide insight into ...
 
+Over the past decades, users of LAMMPS and other molecular dynamics simulators have
+typically written scripts in a text editor and run the scripts by passing them to the simulator
+on the command line.
+The simulator in turn writes the results to disk and the user analyzes the results
+by reading the files manually or passing them to other programs.
+With the arrival of software like VMD,
+it become easy to both visualize the trajectories and certain physical quantities.
+VMD came with support both for reading the results from file or attaching to a
+running process of supported simulators.
+Later, modern visualization tools like Ovito has made both visualization and analysis more
+accessible to new users.
+In addition, the results can be loaded into common programming languages like MATLAB and Python
+to produce publication-ready figures.
+
+In combination, the text editors, the simulators, the visualization software, and the programming
+languages like MATLAB and Python define the workflow of a typical researcher in computational
+materials science.
+While this is a powerful workflow in well-established simulations,
+it is tedious for prototyping new ideas.
+The workflow requires a fairly large amount of context switching,
+moving from the text editor to the terminal to run the simulation,
+waiting for the results, and then finally being able to study them using the analysis
+and visualization tools.
+
+Here, we present Atomify, a software that integrates script editing,
+visualization and analysis into one tool.
+Atomify has detailed knowledge about the inner workings of LAMMPS,
+which makes it capable not only of visualizing the simulation results,
+but also how the simulation is defined in terms of different groups and regions.
 
 \begin{figure*}
 	\centering
 	\includegraphics[width=\textwidth]{gui.png}
 	\caption{%
     Overview of the Graphical User Interface (GUI) in Atomify.
-    The toolbar (1) is used to change between the different modes, such as 
-    editing, viewing and analyzing the running simulation, 
+    The toolbar (1) is used to change between the different modes, such as
+    editing, viewing and analyzing the running simulation,
     in addition to playback controls.
     The file browser (2) contain the list of open LAMMPS scripts or data files.
     The text editor (3) provides code highlighting.
     The viewport (4) shows the current simulation.
-    The simulation properties (5) shows the simulations details, gives access to 
+    The simulation properties (5) shows the simulations details, gives access to
     LAMMPS objects such as groups, regions and computes, and the rendering
     properties (6) lets you change the viewport settings, such as lighting and
     draw mode.
@@ -178,7 +205,7 @@ Even though we only apply a pressure gradient on the gas atoms, this induced mom
 We therefore freeze the outmost atoms (blue in Fig \ref{fig:cylinder_simulation}).
 To achieve these properties of the system, the atoms are divided into multiple regions, which are integrated differently:
 
-\begin{itemize}  
+\begin{itemize}
 	\item $r \leq 10$: applied pressure gradient
 	\item $r \leq 17$: regular time integration
 	\item $14 < r \leq 17$: Dissipative Langevin thermostat
@@ -271,7 +298,7 @@ We can obtain this with the command
 	group gas dynamic all region cylinder1 every 1
 \end{lstlisting}
 
-which will contain only the outer shell. 
+which will contain only the outer shell.
 We here also created the group \code{frozen}, which is the outmost atoms, and the group \code{gas} which is dynamic since atoms may switch places and we want to only apply a force on the ones in the inner cylinder at any point in time.
 The frozen atoms will not move at all and make sure that the system does not start moving due to momentum transfer from the gas particles through the solid.
 All these groups are highlighted in Fig. \ref{fig:initial_configuration}e by hovering the box containing all the groups. in Atomify as shown in Fig. \ref{fig:initial_configuration}f.
@@ -340,7 +367,7 @@ When we click it, we will get the figure shown in Fig. \ref{fig:velocity_profile
 	\includegraphics[width=0.5\textwidth]{lj_flow/08_velocity_profile1.png}
 	\caption{
 		The velocity profile for a Lennard Jones gas inside a nanochannel of radius 8.7 (reduced units).
-		Since the wall also is made of Lennard Jones atoms, some of the wall atoms 
+		Since the wall also is made of Lennard Jones atoms, some of the wall atoms
 		This figure is made using the Atomify real-time plotter which can show any scalar value defined in LAMMPS
 		as compute, fix or variable.
     }
