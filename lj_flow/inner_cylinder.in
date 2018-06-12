@@ -1,56 +1,84 @@
 #/camera position -58.7529 37.5079 32.1119
 #/camera viewcenter 33.5919 16.796 16.796
 
+#package gpu 1
+#suffix gpu
+# variable rho equal 0.03
+
 units lj
 atom_style atomic
-lattice fcc 0.8442
-region box block 0 40 0 25 0 25
-create_box 1 box
+
+lattice fcc 0.975
+region box block 0 60 0 30 0 30
+create_box 2 box
 create_atoms 1 box
-mass 1 1.0
-velocity all create 1.0 87287
+mass 1 4.0
+mass 2 0.5
+
+
 pair_style lj/cut 2.5
 pair_coeff 1 1 1.0 1.0 2.5
+pair_coeff 2 2 0.5 0.88 2.5
+pair_coeff 1 2 0.2 1.0 2.5
+#pair_coeff 1 2 1.5 0.8 2.5
+pair_modify mix geometric
 neigh_modify every 1 delay 0 check yes
 
-variable R equal 10
+variable R equal 12
 region cylinder1 cylinder x $(0.5*ly) $(0.5*lz) $R EDGE EDGE units box
 
 group cylinder1 region cylinder1
 variable V equal PI*v_R*v_R*lx
-variable rho equal 0.1
+# variable rho equal 0.1
 variable natoms equal $V*${rho}
 variable natoms_in_cylinder equal count(cylinder1)
 variable delete_fraction equal (${natoms_in_cylinder}-${natoms})/${natoms_in_cylinder}
+set group cylinder1 type 2
 delete_atoms porosity cylinder1 ${delete_fraction} 12345
+#delete_atoms region cylinder1
 
-region cylinder2 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+4) EDGE EDGE units box
-region cylinder3 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+7) EDGE EDGE units box
+region cylinder2 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+6) EDGE EDGE units box
+region cylinder3 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+11) EDGE EDGE units box
 group cylinder2 region cylinder2
 group cylinder3 region cylinder3
 
 group nve region cylinder3
 group langevin subtract cylinder3 cylinder2
 group frozen subtract all cylinder3
-group gas dynamic all region cylinder1 every 1
+
+region force cylinder x $(0.5*ly) $(0.5*lz) $(v_R-1) EDGE EDGE units box
+group inner dynamic all region cylinder1 every 1
+#group gas dynamic all region force every 1
+group gas type 2
 
 fix nve nve nve
-fix langevin langevin langevin 0.5 0.5 1.0 12345 zero yes
+fix langevin langevin langevin 0.50 0.50 1.0 12345 zero yes
 
-fix flow gas addforce 0.1 0.0 0.0
+variable gascount equal count(gas)
+
+variable dP equal 0.1/lx
+#variable measured_rho equal (count(gas)+1)/(PI*(v_R-1)*(v_R-1)*lx)
+#variable force equal v_dP/v_measured_rho
+variable force equal v_dP/v_rho
+
+velocity all create 0.1 87287
 velocity frozen set 0 0 0
-#compute chunk all chunk/atom bin/cylinder x center 2 $(0.5*ly) $(0.5*lz) 0 $(ly) 5.0 10 discard yes
-compute chunk all chunk/atom bin/cylinder x lower $(lx) $(0.5*ly) $(0.5*lz) 0 $(v_R+2) 30 units box
-#fix velocity all ave/chunk 10 10 100 chunk vx norm all ave running file velocity.txt
-fix vx all ave/chunk 5 10 50 chunk vx ave running file velocity.txt
 
-variable vx atom vx
+compute chunk all chunk/atom bin/cylinder x lower $(lx) $(0.5*ly) $(0.5*lz) 0 $(v_R+5) 30 units box
+
+compute displacement nve displace/atom
+compute mean_displacement nve reduce ave c_displacement[4]
+
+thermo_style custom step time temp c_mean_displacement spcpu cpuremain
+thermo 100
+
 compute keAtom all ke/atom
-variable etotal equal etotal
-compute displacement all displace/atom
+dump dump all custom 1000 trajectory.bin id type x y z c_keAtom
 
-compute ix gas property/atom ix
-compute boundary_count gas reduce sum c_ix
-variable boundary_count_per_time equal c_boundary_count/time
+fix flow gas addforce v_force 0.0 0.0
+run 5000
 
-run 2000
+reset_timestep 0
+fix vx all ave/chunk 10 100000 1000000 chunk vx ave running file velocity.txt
+
+run 1000000
