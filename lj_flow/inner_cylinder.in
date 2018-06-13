@@ -1,6 +1,6 @@
 #/camera position -58.7529 37.5079 32.1119
 #/camera viewcenter 33.5919 16.796 16.796
-
+log log.short
 #package gpu 1
 #suffix gpu
 # variable rho equal 0.03
@@ -56,9 +56,9 @@ fix langevin langevin langevin 0.50 0.50 1.0 12345 zero yes
 
 variable gascount equal count(gas)
 
-variable dP equal 0.1/lx
-#variable measured_rho equal (count(gas)+1)/(PI*(v_R-1)*(v_R-1)*lx)
-#variable force equal v_dP/v_measured_rho
+variable dP equal 0.001
+variable measured_rho equal mass(gas)/(PI*(v_R-1)*(v_R-1)*lx)
+variable force equal v_dP/v_measured_rho
 variable force equal v_dP/v_rho
 
 velocity all create 0.1 87287
@@ -69,7 +69,10 @@ compute chunk all chunk/atom bin/cylinder x lower $(lx) $(0.5*ly) $(0.5*lz) 0 $(
 compute displacement nve displace/atom
 compute mean_displacement nve reduce ave c_displacement[4]
 
-thermo_style custom step time temp c_mean_displacement spcpu cpuremain
+compute vmax all reduce max vx
+variable volume equal count(gas)/v_V
+
+thermo_style custom step time temp c_mean_displacement v_volume v_force c_vmax dt spcpu cpuremain
 thermo 100
 
 compute keAtom all ke/atom
@@ -79,6 +82,8 @@ fix flow gas addforce v_force 0.0 0.0
 run 5000
 
 reset_timestep 0
-fix vx all ave/chunk 10 100000 1000000 chunk vx ave running file velocity.txt
+fix vx all ave/chunk 10 10000 100000 chunk vx ave running file velocity.txt
 
-run 1000000
+fix dt all dt/reset 10 NULL NULL 0.05 units box
+
+run 100000
