@@ -93,11 +93,11 @@ xrightmargin=0.1cm}
 \title{Increased productivity using Atomify - a real-time LAMMPS visualizer}
 
 \author[cor1]{Anders Hafreager$^{1}$}
-\address{$^1$Department of Physics - University of Oslo\\Sem S{\ae}lands vei 24, NO-0316, Oslo, Norway}
 \eads{\mailto{anderhaf@fys.uio.no}, \mailto{andershaf@gmail.com}}
 
 \author{Svenn-Arne Dragly$^{1}$}
 \ead{s.a.dragly@fys.uio.no}
+\address{$^1$Department of Physics - University of Oslo\\Sem S{\ae}lands vei 24, NO-0316, Oslo, Norway}
 
 \begin{abstract}
 The typical workflow when running atomistic simulations includes working with several programs.
@@ -107,37 +107,39 @@ where additional scripts must be used.
 This is a tedious process, especially for teaching purposes and for people who are new in the field.
 We here introduce Atomify; a high performance real-time visualizer for atomistic simulations that can simulate and render more than one million atoms with excellent frame rate on modern hardware.
 Atomify supports OpenMP acceleration, GPU acceleration, real-time plotting of physical quantities, and an easy-to-use code editor in one single application.
-It currently uses LAMMPS as physics engine, but it can be extended to support other codes like Gromacs, NAMD or OpenMM.
-Atomify is open-source software (GPL) written in C++ using the Qt framework.
+It currently uses LAMMPS as physics engine, but it can be extended to support other codes like GROMACS, NAMD or CHARMM.
+Atomify is open-source software (GPL) written in C++ using the Qt framework and can be downloaded from \url{https://github.com/ovilab/atomify}.
 \end{abstract}
 
 %Uncomment for PACS numbers title message
 \pacs{00.00, 20.00, 42.10}
 % Keywords required only for MST, PB, PMB, PM, JOA, JOB? 
 \vspace{2pc}
-\noindent{\it Keywords}: Article preparation, IOP journals
-% Uncomment for Submitted to journal title message
-\submitto{\JPA}
 % Comment out if separate title page not required
 %\maketitle
 
 \section{Introduction}
 
-Over the past decades, users of LAMMPS\cite{Plimpton1995Fast} and other molecular dynamics simulators such as GROMACS, NAMD and CHARMM\cite{berendsen1995gromacs, Phillips2005Scalable, brooks2009charmm} have
-typically written scripts in a text editor and run the scripts by passing them to the simulator
-on the command line.
+Over the past decades, users of LAMMPS\cite{Plimpton1995Fast} and other molecular dynamics simulators such
+as GROMACS\cite{berendsen1995gromacs}, NAMD\cite{nelson1996namd} and CHARMM\cite{brooks2009charmm} have
+typically written scripts in a text editor and run the scripts by passing them to the simulator on the command line.
 The simulator in turn writes the results to disk and the user analyzes the results
 by reading the files manually or passing them to other programs.
-With the arrival of software like VMD,\cite{Humphrey1996Vmd}
-it became easy to both visualize the trajectories and certain 
-physical quantities such as the radial distribution function.
-VMD came with support both for reading the results from file or attaching to a
-running process of supported simulators.
-\todo[inline]{Why is Ovito more modern than VMD?}
-Later, modern visualization tools like Ovito\cite{Stukowski2009Visualization} has made both visualization and analysis more
-accessible to new users through its powerful scriptable modifier pipeline.
-In addition, the results can be loaded into common programming languages like MATLAB and Python
-to produce publication-ready figures.
+
+With the arrival of software like Rasmol\cite{sayle1995rasmol} and VMD\cite{Humphrey1996Vmd},
+it became easy to both visualize the trajectories and analyze physical quantities such as the radial distribution function.
+VMD came with support both for reading trajectories from file and attaching to a
+running process using MDComm\cite{nelson1995mdscope} and a supported simulator such as NAMD\cite{nelson1996namd}.
+Although this enabled real-time visualization, the workflow still involved using all these different programs which is still a problem today.
+
+Analysis of simulations is often done as a postprocessing step where the trajectories and other per-atom quantities (velocity, stress etc.)
+are loaded into an analysis tool written by researchers themselves. About 10 years ago, a new visualization tool called OVITO was released \cite{Stukowski2009Visualization},
+with a powerful modifier pipeline where input data can be processed and manipulated as a series of building blocks.
+These building blocks can be used to calculate new properties and atoms can be colored thereafter.
+
+Scalar quantities such as temperature, pressure and number of atoms in a specific state are often printed to a
+text file. Researchers often write their own plotting scripts in languages like MATLAB or Python
+to see how these quantities evolve with time.
 
 In combination, the text editors, the simulators, the visualization software, and the programming
 languages like MATLAB and Python define the workflow of a typical researcher in computational
@@ -157,7 +159,7 @@ but also how the simulation is defined in terms of different groups and regions.
 
 It is especially useful during development of new scripts, but can be used
 to run full, publication-ready simulations with minimal simulation overhead.
-The current implementation only supports LAMMPS, but is written in a general
+The current implementation only supports LAMMPS as a simulator, but is written in a general
 way so integrating other codes is a simple task.
 
 \begin{figure}
@@ -210,30 +212,50 @@ Common pitfalls which are easily picked up with Atomify are shown.
 \end{figure}
 
 \section{\label{sec:features}Summary of features}
-Atomify was designed to improve the workflow by reducing the number of
-context switches and mouse clicks to obtain immediate results from a simulation.
+Atomify was designed to improve the workflow as its main goal.
+Focusing on minimizing the number of context switches and mouse clicks reduces
+the overhead between creativity and immediate results from a simulation.
 It has a script editor, visualization window and a summary panel so all relevant parts
 of a simulation can be on the screen at the same time.
 
 Any changes to the script like defining regions or groups,
 testing temperatures, size of simulation box or inserting atoms can
-quickly be verified since visualization is real-time.
+quickly be verified since the visualization shows the real-time state of the simulator.
 Rerunning the current script can be done by pressing \keys{Ctrl+R} (\keys{cmd+R} on macOS).
 
 How the pressure, radial distribution function or some other
 complicated variable evolves over time is easily understood
-since these can be plotted real-time with a simple click.
-Bonds between atoms in a molecule is automatically extracted from
-the internals of LAMMPS, or can be defined as a distance threshold
-between atom types.
+since these can be plotted real-time with a simple click in the list of variables.
+Bonds between atoms in a molecule is automatically extracted from LAMMPS, or can
+be defined as a distance threshold between atom types.
+Regions and groups can be highlighted or hidden which is useful to focus on some parts of a system.
+Rendering periodic copies can be done to study features near a periodic boundary condition.
+
+Per-atom scalar quantities can be used to color each atom based its value.
+For instance, \code{compute cna/atom}\cite{faken1994systematic, tsuzuki2007structural} can be used to identify the crystal structure an atom is a part of.
+It gives each atom an integer value in the range [1,5] representing FCC, HCP, BCC, Icosohedral or unknown crystal structure.
+\code{compute displace/atom} can be used to see how far each atom has moved and \code{compute stress/atom} gives the local stress in the system.
+These values can be used as input to \code{fix ave/atom} to get time averaged values to reduce noise.
+Coloring each atom based on these values can give great insight when it is available with a single mouse click.
+
+Although LAMMPS is mostly used to study molecular dynamics, it can also be used to
+study monte carlo simulations\cite{frenkel2001understanding} and granular
+materials\cite{brilliantov1996model, silbert2001granular, zhang2005jamming},
+both of which work very well in Atomify since they are particle based simulations.
+
+Atomify supports rendering of spheres and cylinders representing atoms and bonds.
+It is done using the powerful Qt3D engine with custom visualization techniques such as
+billboard raytracing\cite{tarini2006ambient} and screen space ambient occlusion\cite{bavoil2008screen}
+for improved dynamic depth perception. This allows a large amount of atoms and molecules being rendered with excellent framerate.
+The liming factor is the simulation itself since force calculation is a heavy task.
 
 The Atomify GUI is shown in figure \ref{fig:gui} where \todo{short summary of GUI}.
-
 This turns out to improve the workflow substantially.
 In addition, Atomify comes with multiple examples,
 many of which have been made by members of the LAMMPS community.
 
 \section{\label{sec:casestudy}Case study: flow through a narrow nanotube}
+\todo[inline]{More references in here?}
 The features of Atomify is best demonstrated through a case study where many of
 them are useful to obtain a productive workflow during script development.
 We have chosen to create a system with fluid flow inside a tight nanochannel.
@@ -526,6 +548,8 @@ Atomify is available on Linux and MacOS and can be downloaded from
 \href{https://ovilab.net/atomify}{http://ovilab.net/atomify}.
 A lightweight version of Atomify is also available for mobile devices running
 Android or iOS.
+
+\todo[inline]{Potentially future work, emscripten, webassembly? emscripten has a proceedings paper.}
 
 \section{Acknowledgments}
 Statoil etc.
