@@ -224,7 +224,7 @@ of a simulation can be on the screen at the same time.
 Any changes to the script like defining regions or groups,
 changing temperatures, size of simulation box or inserting atoms can
 quickly be verified since the visualization shows the real-time state of the simulator.
-Rerunning the current script can be done by pressing \keys{Ctrl+R} (\keys{cmd+R} on macOS).
+Rerunning the current script can be done by pressing \keys{Ctrl+R} (\keys{\cmd+R} on macOS).
 
 How the pressure, radial distribution function or some other
 complicated variable evolves over time is easily found
@@ -332,11 +332,12 @@ To obtain this system, we divide the atoms into multiple cylindrical regions, wh
 The different radii are specified in reduced Lennard Jones units.
 
 \subsection{Creating the initial geometry}
-We create a new script in Atomify using \keys{\ctrl+N}, and save it (\keys{\ctrl+S}) as \code{run.in}.
+We create a new script in Atomify using \keys{Ctrl+N}, and save it with \keys{Ctrl+S} as \code{run.in}.
 Copy the following input script
 
-\todo[inline]{Should we remove line numbers?}
-we will modify it part by part.
+\lstinputlisting[language=LAMMPS]{simple.in}
+
+We will modify this script bit by bit.
 Here, we have a Lennard Jones solid with reduced density
 $\rho^* = 0.975$, reduced masses $m_1^* = 4.0$, $m_2^* = 0.5$ with $(60\times30\times30)$
 FCC unit cells and a cutoff of $2.5$. 
@@ -411,10 +412,10 @@ variable N_wanted equal $V*${rho_m}/0.5
 variable delete_fraction equal (${N_cyl}-${N_wanted})/${N_cyl}
 delete_atoms porosity cylinder1 ${delete_fraction} 1234
 \end{lstlisting}
-where we see the result in figure \ref{fig:initial_configuration}c by rerunning the script with \keys{\ctrl+R}.
+where we see the result in figure \ref{fig:initial_configuration}c by rerunning the script with \keys{Ctrl+R}.
 
 This shows a powerful workflow with Atomify where changes quickly can be tested with immediate feedback.
-Each time we add or change a command, we just rerun with \keys{\ctrl+R} to see how it looks like.
+Each time we add or change a command, we just rerun with \keys{Ctrl+R} to see how it looks like.
 
 The next step now is to create a larger cylinder $C_2$, the one containing the orange atoms in
 figure \ref{fig:cylinder_simulation}, where regular time integration will take place.
@@ -422,7 +423,7 @@ This cylinder should have a slightly bigger radius and can be created with anoth
 \begin{lstlisting}
 region cylinder2 cylinder x $c $c $(v_R+6) EDGE EDGE units box
 \end{lstlisting}
-Again press \keys{\ctrl+R} to see the expected result in figure \ref{fig:initial_configuration}d.
+Again press \keys{Ctrl+R} to see the expected result in figure \ref{fig:initial_configuration}d.
 
 Now we have the inner cylinder with the gas atoms defined as a region and the next cylinder shell (including the gas atoms) defined as another region.
 We now want to create another shell, the one with the dissipative thermostat.
@@ -495,7 +496,7 @@ This works for any \textit{per-atom} compute or variable.
 	\label{fig:moving_atoms}
 \end{figure}
 
-By rerunning again (\keys{\ctrl+R}), we confirm that the system behaves as expected as shown in figure \ref{fig:moving_atoms} where
+By rerunning again (\keys{Ctrl+R}), we confirm that the system behaves as expected as shown in figure \ref{fig:moving_atoms} where
 atoms are colored based on their displacement.
 The only remaining part now is to set up the commands that will apply the pressure gradient and measure the radial velocity profile.
 
@@ -538,20 +539,11 @@ All these plots are now merged into a final figure which is shown in figure \ref
 It is here evident that the velocity near the boundary is not zero, which is the reason why the permeability is much higher for dilute gases than dense liquids.
 This is, as mentioned earlier, called the Klinkenberg effect\cite{klinkenberg1941permeability}.
 
-\section{\label{sec:discussion}Discussion}
-In this paper we have presented Atomify, an new software that reduces the amount of context switches and mouse clicks
-when developing new simulation scripts.
-As of today, only LAMMPS is supported as the physical simulator, but other codes can easily be integrated
-due our general implementation with no assumpetion about the underlying code except atom positions.
-The communication overhead is minimized since LAMMPS runs in the same process as Atomify, sharing the memory.
-
 \section{Availability}
 Atomify is available on Linux and MacOS and can be downloaded from
 \href{https://ovilab.net/atomify}{http://ovilab.net/atomify}.
 A lightweight version of Atomify is also available for mobile devices running
 Android or iOS.
-
-\todo[inline]{Potentially future work, emscripten, webassembly? emscripten has a proceedings paper.}
 
 \section{Acknowledgments}
 Statoil etc.
