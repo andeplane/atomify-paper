@@ -119,6 +119,7 @@ Atomify is open-source software (GPL) written in C++ using the Qt framework and 
 %\maketitle
 
 \section{Introduction}
+\todo[inline]{Use the word user-friendly more!}
 Running molecular dynamics software has had a workflow that has not changed much over the past couple of decades.
 Users of LAMMPS\cite{Plimpton1995Fast} and other codes such
 as GROMACS\cite{berendsen1995gromacs}, NAMD\cite{nelson1996namd} and CHARMM\cite{brooks2009charmm} typically write
@@ -131,8 +132,12 @@ it became easy to both visualize the trajectories and analyze physical quantitie
 VMD came with support both for reading trajectories from file and attaching to a
 running process using MDComm\cite{nelson1995mdscope} and a supported simulator such as NAMD.
 
-\todo{Also mention MDDriver and GROMACS+Megamol (delalande2009complex, grottel2015megamol)}
-Although this enabled real-time visualization, the workflow still involved using all these different programs which is still a problem today.
+Some 10 years later, an improved abstract communication layer called MDDriver\cite{delalande2009complex} was designed
+which is general and a small effort is needed to add support for a new simulator. MegaMol\cite{grottel2015megamol} was developed
+only a few years ago and supports real-time visualization of GROMACS through MDDriver.
+Although this enable real-time visualizations, the workflow still involves using all these different programs and is not very user friendly.
+The data is also transferred through the IMD protocol based on TCP/IP sockets\cite{delalande2009complex} which may introduce
+overhead in data transfer compared to a shared memory solution.
 
 Analysis of simulations is often done as a postprocessing step where the trajectories and other 
 per-atom quantities, such as velocity and stress, are loaded into an analysis tool written by researchers themselves.
@@ -156,9 +161,10 @@ and visualization tools.
 
 Here, we present Atomify, a software that integrates script editing,
 visualization and analysis into one tool.
-Atomify has detailed knowledge about the inner workings of LAMMPS,
-which makes it capable not only of visualizing the simulation results,
-but also how the simulation is defined in terms of different groups and regions.
+Atomify uses LAMMPS as a linked library and has shared memory access to the internals of LAMMPS,
+which maximizes the datatransfer speed and reduces latency.
+By having direct access to all the datastructures in LAMMPS, it is capable of not only of visualizing the simulation results,
+but also extra information about how the simulation is defined using groups and regions.
 
 This is especially useful during development of new scripts, but can be used
 to run full, publication-ready simulations with minimal simulation overhead.
