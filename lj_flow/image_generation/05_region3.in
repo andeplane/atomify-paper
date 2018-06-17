@@ -26,7 +26,7 @@ pair_modify mix geometric
 neigh_modify every 1 delay 0 check yes
 
 variable R equal 12
-region cylinder3 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+11) EDGE EDGE units box
+region cylinder3 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+9) EDGE EDGE units box
 region cylinder2 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+6) EDGE EDGE units box
 region cylinder1 cylinder x $(0.5*ly) $(0.5*lz) $R EDGE EDGE units box
 

@@ -1,0 +1,4 @@
+rho0_002 = dlmread('velocity.0.002.txt', ' ', 4, 0);
+rho0_005 = dlmread('velocity.0.002.txt', ' ', 4, 0);
+rho0_002 = dlmread('velocity.0.002.txt', ' ', 4, 0);
+rho0_002 = dlmread('velocity.0.002.txt', ' ', 4, 0);

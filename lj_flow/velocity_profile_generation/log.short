@@ -1,0 +1,100 @@
+#package gpu 1
+#suffix gpu
+variable rho equal 0.05
+
+units lj
+atom_style atomic
+
+lattice fcc 0.975
+Lattice spacing in x,y,z = 1.60085 1.60085 1.60085
+region box block 0 60 0 30 0 30
+create_box 2 box
+Created orthogonal box = (0 0 0) to (96.0513 48.0256 48.0256)
+  1 by 1 by 1 MPI processor grid
+create_atoms 1 box
+Created 216000 atoms
+  Time spent = 0.03584 secs
+mass 1 4.0
+mass 2 0.5
+
+
+pair_style lj/cut 2.5
+pair_coeff 1 1 1.0 1.0 2.5
+pair_coeff 2 2 0.5 0.88 2.5
+pair_coeff 1 2 0.2 1.0 2.5
+#pair_coeff 1 2 1.5 0.8 2.5
+pair_modify mix geometric
+neigh_modify every 1 delay 0 check yes
+
+variable R equal 12
+region cylinder1 cylinder x $(0.5*ly) $(0.5*lz) $R EDGE EDGE units box
+region cylinder1 cylinder x 24.012813670346833561 $(0.5*lz) $R EDGE EDGE units box
+region cylinder1 cylinder x 24.012813670346833561 24.012813670346833561 $R EDGE EDGE units box
+region cylinder1 cylinder x 24.012813670346833561 24.012813670346833561 12 EDGE EDGE units box
+
+group cylinder1 region cylinder1
+41820 atoms in group cylinder1
+variable V equal PI*v_R*v_R*lx
+# variable rho equal 0.1
+variable natoms equal $V*${rho}
+variable natoms equal 43452.5639148185*${rho}
+variable natoms equal 43452.5639148185*0.05
+variable natoms_in_cylinder equal count(cylinder1)
+variable delete_fraction equal (${natoms_in_cylinder}-${natoms})/${natoms_in_cylinder}
+variable delete_fraction equal (41820-${natoms})/${natoms_in_cylinder}
+variable delete_fraction equal (41820-2172.62819574093)/${natoms_in_cylinder}
+variable delete_fraction equal (41820-2172.62819574093)/41820
+set group cylinder1 type 2
+  41820 settings made for type
+delete_atoms porosity cylinder1 ${delete_fraction} 12345
+delete_atoms porosity cylinder1 0.94804810627114 12345
+Deleted 39733 atoms, new total = 176267
+#delete_atoms region cylinder1
+
+region cylinder2 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+6) EDGE EDGE units box
+region cylinder2 cylinder x 24.012813670346833561 $(0.5*lz) $(v_R+6) EDGE EDGE units box
+region cylinder2 cylinder x 24.012813670346833561 24.012813670346833561 $(v_R+6) EDGE EDGE units box
+region cylinder2 cylinder x 24.012813670346833561 24.012813670346833561 18 EDGE EDGE units box
+region cylinder3 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+9) EDGE EDGE units box
+region cylinder3 cylinder x 24.012813670346833561 $(0.5*lz) $(v_R+9) EDGE EDGE units box
+region cylinder3 cylinder x 24.012813670346833561 24.012813670346833561 $(v_R+9) EDGE EDGE units box
+region cylinder3 cylinder x 24.012813670346833561 24.012813670346833561 21 EDGE EDGE units box
+group cylinder2 region cylinder2
+56087 atoms in group cylinder2
+group cylinder3 region cylinder3
+89927 atoms in group cylinder3
+
+group nve region cylinder3
+89927 atoms in group nve
+group langevin subtract cylinder3 cylinder2
+33840 atoms in group langevin
+group frozen subtract all cylinder3
+86340 atoms in group frozen
+
+region force cylinder x $(0.5*ly) $(0.5*lz) $(v_R-1) EDGE EDGE units box
+region force cylinder x 24.012813670346833561 $(0.5*lz) $(v_R-1) EDGE EDGE units box
+region force cylinder x 24.012813670346833561 24.012813670346833561 $(v_R-1) EDGE EDGE units box
+region force cylinder x 24.012813670346833561 24.012813670346833561 11 EDGE EDGE units box
+group inner dynamic all region cylinder1 every 1
+dynamic group inner defined
+#group gas dynamic all region force every 1
+group gas type 2
+2087 atoms in group gas
+
+fix nve nve nve
+fix langevin langevin langevin 0.50 0.50 1.0 12345 zero yes
+
+variable gascount equal count(gas)
+
+variable dP equal 0.001
+variable measured_rho equal mass(gas)/(PI*(v_R-1)*(v_R-1)*lx)
+variable force equal v_dP/v_measured_rho
+variable force equal v_dP/v_rho
+
+velocity all create 0.1 87287
+velocity frozen set 0 0 0
+
+compute chunk all chunk/atom bin/cylinder x lower $(lx) $(0.5*ly) $(0.5*lz) 0 $(v_R+5) 30 units box
+compute chunk all chunk/atom bin/cylinder x lower 96.051254681387334244 $(0.5*ly) $(0.5*lz) 0 $(v_R+5) 30 units box
+compute chunk all chunk/atom bin/cylinder x lower 96.051254681387334244 24.012813670346833561 $(0.5*lz) 0 $(v_R+5) 30 units box
+compute chunk all chunk/atom bin/cylinder x lower 96.051254681387334244 24.0128136703468

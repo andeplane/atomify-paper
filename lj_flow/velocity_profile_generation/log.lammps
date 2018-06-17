@@ -1,0 +1,6 @@
+LAMMPS (16 Mar 2018)
+fix atomify all atomify
+#/camera position -63.0668 62.4751 33.8401
+#/camera viewcenter 35.5396 25.4799 16.796
+
+log log.short

@@ -64,7 +64,7 @@
 \newcommand*{\cpp}{C\ensuremath{++}\xspace}
 
 \lstdefinelanguage{LAMMPS}{
-    morekeywords={units,atom_style,lattice,region,create_box,create_atoms,pair_style,pair_coeff,neigh_modify,mass,velocity,fix,run, group every, equal, count, porosity, EDGE},
+    morekeywords={units,compute,langevin,atom_style,lattice,region,create_box,create_atoms,pair_style,pair_coeff,neigh_modify,mass,velocity,fix,run, group every, equal, count, porosity, EDGE},
     sensitive=false, % keywords are not case-sensitive
     morecomment=[l]{//}, % l is for line comment
     morecomment=[s]{/*}{*/}, % s is for start and end delimiter
@@ -90,7 +90,7 @@ xrightmargin=0.1cm}
 
 \begin{document}
 
-\title{Increased productivity using Atomify - a real-time LAMMPS visualizer}
+\title{Improved workflow using Atomify - a real-time LAMMPS visualizer}
 
 \author[cor1]{Anders Hafreager$^{1}$}
 \eads{\mailto{anderhaf@fys.uio.no}, \mailto{andershaf@gmail.com}}
@@ -105,21 +105,20 @@ A text editor is needed to create and modify the scripts, the terminal to run th
 If physical quantities are computed, the data is often plotted using programming languages like MATLAB or Python,
 where additional scripts must be used.
 This is a tedious process, especially for teaching purposes and for people who are new in the field.
-We here introduce Atomify; a high performance real-time visualizer for atomistic simulations that can simulate and render more than one million atoms with excellent frame rate on modern hardware.
+We here introduce Atomify; a user-friendly high performance real-time visualizer for atomistic simulations that can simulate and render more than one million atoms with excellent frame rate on modern hardware.
 Atomify supports OpenMP acceleration, GPU acceleration, real-time plotting of physical quantities, and an easy-to-use code editor in one single application.
 It currently uses LAMMPS as physics engine, but it can be extended to support other codes like GROMACS, NAMD or CHARMM.
 Atomify is open-source software (GPL) written in C++ using the Qt framework and can be downloaded from \url{https://github.com/ovilab/atomify}.
 \end{abstract}
 
 %Uncomment for PACS numbers title message
-\pacs{00.00, 20.00, 42.10}
+% \pacs{00.00, 20.00, 42.10}
 % Keywords required only for MST, PB, PMB, PM, JOA, JOB? 
 \vspace{2pc}
 % Comment out if separate title page not required
 %\maketitle
 
 \section{Introduction}
-\todo[inline]{Use the word user-friendly more!}
 Running molecular dynamics software has had a workflow that has not changed much over the past couple of decades.
 Users of LAMMPS\cite{Plimpton1995Fast} and other codes such
 as GROMACS\cite{berendsen1995gromacs}, NAMD\cite{nelson1996namd} and CHARMM\cite{brooks2009charmm} typically write
@@ -135,9 +134,10 @@ running process using MDComm\cite{nelson1995mdscope} and a supported simulator s
 Some 10 years later, an improved abstract communication layer called MDDriver\cite{delalande2009complex} was designed
 which is general and a small effort is needed to add support for a new simulator. MegaMol\cite{grottel2015megamol} was developed
 only a few years ago and supports real-time visualization of GROMACS through MDDriver.
-Although this enable real-time visualizations, the workflow still involves using all these different programs and is not very user friendly.
-The data is also transferred through the IMD protocol based on TCP/IP sockets\cite{delalande2009complex} which may introduce
+The data is transferred through the IMD protocol based on TCP/IP sockets\cite{delalande2009complex} which may introduce
 overhead in data transfer compared to a shared memory solution.
+Although this enables real-time visualizations, the workflow not very user-friendly since it still involves
+using all these different programs that need to be configured a certain way.
 
 Analysis of simulations is often done as a postprocessing step where the trajectories and other 
 per-atom quantities, such as velocity and stress, are loaded into an analysis tool written by researchers themselves.
@@ -173,20 +173,18 @@ way so integrating other codes is a simple task.
 
 \begin{figure}
 	\centering
-	\includegraphics[width=\textwidth]{figures/gui.png}
+	\includegraphics[width=\textwidth]{figures/gui.pdf}
 	\caption{%
     Overview of the Graphical User Interface (GUI) in Atomify.
-    The toolbar (1) is used to change between the different modes, such as
-    editing, viewing and analyzing the running simulation,
-    in addition to playback controls.
-    The file browser (2) contain the list of open LAMMPS scripts or data files.
-    The text editor (3) provides code highlighting.
-    The viewport (4) shows the current simulation.
-    The simulation properties (5) shows the simulations details, gives access to
-    LAMMPS objects such as groups, regions and computes, and the rendering
-    properties (6) lets you change the viewport settings, such as lighting and
-    draw mode.
-    TODO: Add numbers to figure.
+    The toolbar a) is used to change between the different modes, such as
+    editing, viewing and analyzing the running simulation.
+    Bottom of a) contains the playback controls.
+    The script editor b) supports multiple open files and provides simple syntax highlighting.
+    The viewport c) shows the current simulation with atoms and bonds, simulation box and coordinate axes.
+    The simulation properties d) shows the simulations details, presents
+    LAMMPS objects such as groups, regions, computes, variables and fixes, and the rendering
+	properties. If one of the computes, variables or fixes with plottable data is clicked, a plot window
+	e) is shown with simple plot properties and export functions to MATLAB, Python or pure text file.
     }
 	\label{fig:gui}
 \end{figure}
@@ -194,9 +192,8 @@ way so integrating other codes is a simple task.
 In this paper we will go through a case study, an example simulation, where we
 use many of the useful features Atomify provides.
 We start by discussing the GUI in section \ref{sec:features} where the main features are summarized.
-In section \ref{sec:casestudy}, the case study is introduced where we go through a typical example
-of a simulation that uses regions and groups to perform different integration on different atoms.
-Common pitfalls which are easily picked up with Atomify are shown.
+In section \ref{sec:casestudy}, a case study is introduced where we go through a somewhat complicated simulation
+that uses regions and groups to perform different integration rules on different atoms.
 
 \begin{figure}[htp!]
 	\centering
@@ -221,6 +218,8 @@ Common pitfalls which are easily picked up with Atomify are shown.
 \end{figure}
 
 \section{\label{sec:features}Summary of features}
+The Atomify graphical user interface (GUI) is shown in figure \ref{fig:gui}.
+
 Atomify was designed with one main goal: improve the workflow.
 Focusing on minimizing the number of context switches and mouse clicks reduces
 the overhead between creativity and results from a simulation.
@@ -258,8 +257,8 @@ billboard raycasting\cite{gumhold2003splatting, sigg2006gpu, tarini2006ambient} 
 for improved dynamic depth perception. This allows a large amount of atoms and molecules being rendered with excellent framerate.
 The liming factor is the simulation itself, since force calculation is a heavy task.
 
-The Atomify GUI is shown in figure \ref{fig:gui} where \todo{short summary of GUI}.
 This turns out to improve the workflow substantially.
+
 In addition, Atomify comes with multiple examples,
 many of which have been made by members of the LAMMPS community.
 
@@ -295,7 +294,7 @@ to correctly describe the \textit{effective permeability} as a function of press
 	\includegraphics[width=0.75\textwidth]{lj_flow/configuration.png}
 	\caption{
 		Initial configuration in our case study simulation.
-		A periodic box consisting of $(60\times30\times30)$ FCC unit cells with reduced density $\rho^* = 0.8442$ where we will have gas flow in a cylinder with radius 12.
+		A periodic box consisting of $(60\times30\times30)$ FCC unit cells with reduced density $\rho^* = 0.975$ where we will have gas flow in a cylinder with radius 12.
 		The different colors indicate the regions of which different integration rules apply.
 		Cyan atoms are fixed and do not move at all,
 		whereas the purple atoms are thermalized with a Langevin\cite{schneider1978molecular} dissipative thermostat to mimick the heat exchange with the frozen bulk atoms.
@@ -378,7 +377,7 @@ As shown in figure \ref{fig:rightbar}, we can hover the specified region to high
 		This shows how one typically generate a geometry step by step where the immediate
 		feedback is very useful to quickly discover mistakes.
 		The wrongly placed cylinder is shown in a) whereas it is placed correctly in b).
-		c) shows how the system looks after deleting atoms to obtain $\rho = 0.01$. The next cylinder $C_2$ is shown in d),
+		c) shows how the system looks after deleting atoms to obtain $\rho_m = 0.05$. The next cylinder $C_2$ is shown in d),
 		and all regions (placed in groups) are shown in e). Here we have uniquely defined the purple shell which should have a dissipative thermostat.
 		In f), the list of all groups defined in this system is shown with colors matching those of e).
 		Although one group is colored green, we don't see any green atoms (\code{cylinder1})
@@ -405,7 +404,7 @@ Since we want to specify a certain density, we need to figure out how many atoms
 should delete. This depends on the current number of atoms inside the region.
 
 To count the number of atoms inside a region, we first create a group containing all the atoms in it, and then create a variable that counts them.
-Assuming mass density $\rho_m = 0.1$, we can calculate the expected number inside the cylinder as $N = V\rho_m/m$,
+Assuming mass density $\rho_m = 0.05$, we can calculate the expected number inside the cylinder as $N = V\rho_m/m$,
 where $V$ is the volume of the cylinder and $m$ is the mass of type 2 atoms.
 
 The atoms inside the region can now be deleted with the following commands
@@ -413,7 +412,7 @@ The atoms inside the region can now be deleted with the following commands
 group cylinder1 region cylinder1
 variable N_cyl equal count(cylinder1)
 variable V equal PI*v_R*v_R*lx
-variable rho_m equal 0.1
+variable rho_m equal 0.05
 variable N_wanted equal $V*${rho_m}/0.5
 variable delete_fraction equal (${N_cyl}-${N_wanted})/${N_cyl}
 delete_atoms porosity cylinder1 ${delete_fraction} 1234
@@ -445,7 +444,6 @@ group nve region cylinder3
 \end{lstlisting}
 where we also have created the group \code{nve} for clarity.
 Note that cylinder 3 contains all atoms in cylinder 2 which contains all atoms in cylinder 1.
-\todo{Fix so cylinder 2 in fig 4 have same color on all atoms.}
 
 We will use \code{fix langevin}\cite{schneider1978molecular} as the dissipative thermostat,
 but it should only be applied on the outer shell defined by atoms being in $C_3$, but not in $C_2$.
@@ -506,8 +504,17 @@ By rerunning again (\keys{Ctrl+R}), we confirm that the system behaves as expect
 atoms are colored based on their displacement.
 The only remaining part now is to set up the commands that will apply the pressure gradient and measure the radial velocity profile.
 
-\subsection{Measurement setup}
-We will use the built-in binning feature in LAMMPS called \textit{chunks}, a general concept where you assign a \code{chunkID} to each atom
+\subsection{Pressure gradient and measurement}
+To obtain a pressure gradient, we will apply a constant force in the positive $x$-direction on all the gas atoms.
+A given pressure gradient must pe specified and we will use $\nabla P = 0.001$ which gives nice velocity profiles.
+In LAMMPS, we obtain this by adding the commands
+\begin{lstlisting}
+variable dP equal 0.001
+variable force equal v_dP/v_rho_m/0.5
+fix flow gas addforce v_force 0.0 0.0
+\end{lstlisting}
+To measure the velocity profile, we will use the built-in binning feature in LAMMPS called \textit{chunks},
+a general concept where you assign a \code{chunkID} to each atom
 based on its position. LAMMPS supports multiple different \textit{chunk styles}, one of which is cylinder.
 In the cylinder binning, we choose the same properties as for a cylinder region (center, length etc.), but also the binsize in the length direction and how many radial bins we want.
 We use one single bin in the flow direction since we only want to measure the radial velocity profile.
@@ -528,7 +535,7 @@ When we click it, we will get the figure shown in figure \ref{fig:velocity_profi
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.8\textwidth]{lj_flow/08_velocity_profile1.png}
+	\includegraphics[width=\textwidth]{figures/velocity_profile.pdf}
 	\caption{
 		The velocity profile for a Lennard Jones gas inside a nanochannel of radius 8.7 (reduced units).
 		Since the wall also is made of Lennard Jones atoms, some of the wall atoms
