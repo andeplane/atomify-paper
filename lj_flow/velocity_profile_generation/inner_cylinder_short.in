@@ -21,7 +21,7 @@ pair_coeff 1 1 1.0 1.0 2.5
 pair_coeff 2 2 0.5 0.88 2.5
 pair_coeff 1 2 0.2 1.0 2.5
 #pair_coeff 1 2 1.5 0.8 2.5
-pair_modify mix geometric
+#pair_modify mix geometric
 neigh_modify every 1 delay 0 check yes
 
 variable R equal 12
@@ -47,8 +47,6 @@ group langevin subtract cylinder3 cylinder2
 group frozen subtract all cylinder3
 
 region force cylinder x $(0.5*ly) $(0.5*lz) $(v_R-1) EDGE EDGE units box
-group inner dynamic all region cylinder1 every 1
-#group gas dynamic all region force every 1
 group gas type 2
 
 fix nve nve nve
@@ -76,7 +74,9 @@ thermo 100
 compute keAtom all ke/atom
 dump dump all custom 1000 trajectory.bin id type x y z c_keAtom
 
-#fix flow gas addforce v_force 0.0 0.0
+compute cna all cna/atom 1.25
+
+fix flow gas addforce v_force 0.0 0.0
 run 5000
 
 reset_timestep 0

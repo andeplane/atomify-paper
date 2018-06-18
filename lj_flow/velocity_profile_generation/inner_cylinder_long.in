@@ -35,10 +35,9 @@ variable natoms_in_cylinder equal count(cylinder1)
 variable delete_fraction equal (${natoms_in_cylinder}-${natoms})/${natoms_in_cylinder}
 set group cylinder1 type 2
 delete_atoms porosity cylinder1 ${delete_fraction} 12345
-#delete_atoms region cylinder1
 
 region cylinder2 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+6) EDGE EDGE units box
-region cylinder3 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+11) EDGE EDGE units box
+region cylinder3 cylinder x $(0.5*ly) $(0.5*lz) $(v_R+9) EDGE EDGE units box
 group cylinder2 region cylinder2
 group cylinder3 region cylinder3
 
@@ -47,8 +46,6 @@ group langevin subtract cylinder3 cylinder2
 group frozen subtract all cylinder3
 
 region force cylinder x $(0.5*ly) $(0.5*lz) $(v_R-1) EDGE EDGE units box
-group inner dynamic all region cylinder1 every 1
-#group gas dynamic all region force every 1
 group gas type 2
 
 fix nve nve nve
@@ -57,14 +54,12 @@ fix langevin langevin langevin 0.50 0.50 1.0 12345 zero yes
 variable gascount equal count(gas)
 
 variable dP equal 0.001
-variable measured_rho equal mass(gas)/(PI*(v_R-1)*(v_R-1)*lx)
-variable force equal v_dP/v_measured_rho
 variable force equal v_dP/v_rho
 
 velocity all create 0.1 87287
 velocity frozen set 0 0 0
 
-compute chunk all chunk/atom bin/cylinder x lower $(lx) $(0.5*ly) $(0.5*lz) 0 $(v_R+5) 30 units box
+compute chunk all chunk/atom bin/cylinder x lower $(lx) $(0.5*ly) $(0.5*lz) 0 $(v_R+3) 80 units box
 
 compute displacement nve displace/atom
 compute mean_displacement nve reduce ave c_displacement[4]

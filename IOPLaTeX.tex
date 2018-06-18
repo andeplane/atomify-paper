@@ -131,21 +131,21 @@ it became easy to both visualize the trajectories and analyze physical quantitie
 VMD came with support both for reading trajectories from file and attaching to a
 running process using MDComm\cite{nelson1995mdscope} and a supported simulator such as NAMD.
 
-Some 10 years later, an improved abstract communication layer called MDDriver\cite{delalande2009complex} was designed
-which is general and a small effort is needed to add support for a new simulator. MegaMol\cite{grottel2015megamol} was developed
+Some 10 years later, an improved abstract communication layer called MDDriver\cite{delalande2009complex} was designed.
+It is more general and a small effort is needed to add support for a new simulator. Another visualization tool MegaMol\cite{grottel2015megamol} was developed
 only a few years ago and supports real-time visualization of GROMACS through MDDriver.
 The data is transferred through the IMD protocol based on TCP/IP sockets\cite{delalande2009complex} which may introduce
 overhead in data transfer compared to a shared memory solution.
 Although this enables real-time visualizations, the workflow not very user-friendly since it still involves
-using all these different programs that need to be configured a certain way.
+using different programs that all need to be configured a certain way.
 
 Analysis of simulations is often done as a postprocessing step where the trajectories and other 
 per-atom quantities, such as velocity and stress, are loaded into an analysis tool written by researchers themselves.
-About 10 years ago, a new visualization tool called OVITO was released \cite{Stukowski2009Visualization},
-with a powerful modifier pipeline where input data can be processed and manipulated as a series of scriptable building blocks.
+One of today's most popular visualization tools is called OVITO\cite{Stukowski2009Visualization},
+which introduced a powerful modifier pipeline where input data can be processed and manipulated as a series of scriptable building blocks.
 These building blocks can be used to calculate new properties and atoms can be colored thereafter.
 
-Scalar quantities such as temperature, pressure and number of atoms in a specific state are often printed to a
+Scalar quantities such as temperature, pressure or number of atoms in a specific state are often stored to a
 text file. Researchers then write their own plotting scripts in languages like MATLAB or Python
 to plot the time evolution of these quantities. 
 
@@ -164,7 +164,7 @@ visualization and analysis into one tool.
 Atomify uses LAMMPS as a linked library and has shared memory access to the internals of LAMMPS,
 which maximizes the datatransfer speed and reduces latency.
 By having direct access to all the datastructures in LAMMPS, it is capable of not only of visualizing the simulation results,
-but also extra information about how the simulation is defined using groups and regions.
+but also show extra information about how the simulation is defined using groups and regions.
 
 This is especially useful during development of new scripts, but can be used
 to run full, publication-ready simulations with minimal simulation overhead.
@@ -222,8 +222,8 @@ The Atomify graphical user interface (GUI) is shown in figure \ref{fig:gui}.
 
 Atomify was designed with one main goal: improve the workflow.
 Focusing on minimizing the number of context switches and mouse clicks reduces
-the overhead between creativity and results from a simulation.
-It has a script editor, visualization window and a summary panel so all relevant parts
+the distance between creativity and simulation results.
+It has a script editor, visualization window and a simulation summary panel so all relevant parts
 of a simulation can be on the screen at the same time.
 
 Any changes to the script like defining regions or groups,
@@ -243,7 +243,7 @@ When the simulation produces per-atom scalar quantities, Atomify can color each 
 For instance, \code{compute cna/atom}\cite{faken1994systematic, tsuzuki2007structural} can be used to identify the crystal structure an atom is a part of.
 It gives each atom an integer value in the range [1,5] representing FCC, HCP, BCC, Icosohedral or unknown crystal structure.
 \code{compute displace/atom} can be used to see how far each atom has moved and \code{compute stress/atom} gives the local stress in the system.
-More complicated variables using per-atom data can be defined due to the general scripting language in LAMMPS.
+More complicated variables using per-atom data can be defined with the general scripting language in LAMMPS.
 If desired, these values can be time averaged using \code{fix ave/atom} and used to color each atom according to the value.
 
 Although LAMMPS is mostly used to study molecular dynamics, it can also be used to
@@ -258,7 +258,6 @@ for improved dynamic depth perception. This allows a large amount of atoms and m
 The liming factor is the simulation itself, since force calculation is a heavy task.
 
 This turns out to improve the workflow substantially.
-
 In addition, Atomify comes with multiple examples,
 many of which have been made by members of the LAMMPS community.
 
@@ -366,7 +365,7 @@ The region command will create a cylinder $C_1$ in the $x$-direction, with $(y,z
 system center \code{\$c} with radius \code{\$R} using the full length of the system in the $x$-direction specified with \code{EDGE}.
 We also change the atoms inside the region to type 2 since are the gas atoms.
 
-We now press \keys{\cmd+R} to run the simulation to see how it looks.
+We now press \keys{Ctrl+R} to run the simulation to see how it looks.
 As shown in figure \ref{fig:rightbar}, we can hover the specified region to highlight the atoms in it.
 
 \begin{figure}
@@ -394,7 +393,7 @@ Discovering mistakes like this is easy using Atomify.
 
 The problem is that LAMMPS expects the values to be in \textit{lattice} units, i.e. multiples of the lattice constant.
 Since we used \code{\$(0.5*lx)}, which gives the system length in actual lenght units, we need to specify \code{units box} in the region command.
-We then rerun the simulation with \keys{\cmd+R} which gives the expected result in figure \ref{fig:initial_configuration}b.
+We then rerun the simulation with \keys{Ctrl+R} which gives the expected result in figure \ref{fig:initial_configuration}b.
 
 Now that the region looks right, we want to delete some atoms to control the density.
 The volume of the inner cylinder is $\pi R^2 L$ which can be calculated in LAMMPS with \code{variable V equal PI*v\_R*v\_R*lx}.
@@ -411,7 +410,7 @@ The atoms inside the region can now be deleted with the following commands
 \begin{lstlisting}
 group cylinder1 region cylinder1
 variable N_cyl equal count(cylinder1)
-variable V equal PI*v_R*v_R*lx
+variable V equal PI*$R*$R*lx
 variable rho_m equal 0.05
 variable N_wanted equal $V*${rho_m}/0.5
 variable delete_fraction equal (${N_cyl}-${N_wanted})/${N_cyl}
@@ -433,17 +432,17 @@ Again press \keys{Ctrl+R} to see the expected result in figure \ref{fig:initial_
 Now we have the inner cylinder with the gas atoms defined as a region and the next cylinder shell (including the gas atoms) defined as another region.
 We now want to create another shell, the one with the dissipative thermostat.
 All the atoms with the dissipative thermostat, the inner shell and the gas will be integrated with the \code{fix nve} integrator.
-We therefore create a larger cylinder $C_3$ with $r=23$ which will be the one defining the group for \code{fix nve}.
+We therefore create a larger cylinder $C_3$ with $r=21$ which will be the one defining the group for \code{fix nve}.
 With all three regions defined, we also create groups which will be used in fixes
 \begin{lstlisting}
-region cylinder3 cylinder x $c $c $(v_R+11) EDGE EDGE units box
+region cylinder3 cylinder x $c $c $(v_R+9) EDGE EDGE units box
 group cylinder1 region cylinder1
 group cylinder2 region cylinder2
 group cylinder3 region cylinder3
 group nve region cylinder3
 \end{lstlisting}
 where we also have created the group \code{nve} for clarity.
-Note that cylinder 3 contains all atoms in cylinder 2 which contains all atoms in cylinder 1.
+Note that cylinder 3 contains all atoms in cylinder 2 which also contains all atoms in cylinder 1.
 
 We will use \code{fix langevin}\cite{schneider1978molecular} as the dissipative thermostat,
 but it should only be applied on the outer shell defined by atoms being in $C_3$, but not in $C_2$.
@@ -463,15 +462,13 @@ moving due to momentum transfer from the flowing gas atoms.
 
 These groups are highlighted in figure \ref{fig:initial_configuration}e by hovering the
 box containing all the groups in Atomify as shown in figure \ref{fig:initial_configuration}f.
-The colors of the atoms match the group list in figure \ref{fig:initial_configuration}f,
-where the order of coloring is the same as they were defined in the script.
 
 \subsection{Physical setup}
 Now that we have managed to set up the system geometrically, 
 we need to apply different actions, or fixes, on them.
 First, we apply the time integration \code{fix nve} which
-should happen on all atoms within $C_3$ (remember that we created the group \code{nve} for this)
-, then the thermostat \code{fix langevin}
+should happen on all atoms within $C_3$ (remember that we created the group \code{nve} for this),
+then the thermostat \code{fix langevin}
 
 \begin{lstlisting}
 fix nve nve nve
@@ -481,8 +478,7 @@ compute displacement all displace/atom
 
 The syntax for fixes is \code{fix ID groupID style args}, so the above fixes have the same name as both the groups and the fix style.
 \code{fix langevin} takes at least 4 arguments \textit{Tstart, Tstop, Tdamp, seed}, i.e.
-the temperature in the beginning of a simulation, the temperature at the end (timesteps in between get a linearly
-interpolated temperature between these values), a damping parameter which controls how strongly the thermal bath interacts with the system.
+the thermostat temperature in the beginning of a simulation, final thermostat temperature at the end, a damping parameter which controls how strongly the thermal bath interacts with the system.
 It also needs a random seed due to the random nature of the Langevin thermostat as discussed in \cite{schneider1978molecular}.
 Finally, we have added another compute that measures the displacement per atom which we will use to see if atoms are placed stable in the crystal lattice.
 In Atomify, we can hover this compute in the list of computes which will color each atom according to their displacement since $t=0$.
@@ -510,20 +506,21 @@ A given pressure gradient must pe specified and we will use $\nabla P = 0.001$ w
 In LAMMPS, we obtain this by adding the commands
 \begin{lstlisting}
 variable dP equal 0.001
-variable force equal v_dP/v_rho_m/0.5
-fix flow gas addforce v_force 0.0 0.0
+variable force equal ${dP}/${rho_m}/0.5
+fix flow gas addforce ${force} 0.0 0.0
 \end{lstlisting}
 To measure the velocity profile, we will use the built-in binning feature in LAMMPS called \textit{chunks},
-a general concept where you assign a \code{chunkID} to each atom
+a general concept where a \code{chunkID} is assigned to each atom
 based on its position. LAMMPS supports multiple different \textit{chunk styles}, one of which is cylinder.
 In the cylinder binning, we choose the same properties as for a cylinder region (center, length etc.), but also the binsize in the length direction and how many radial bins we want.
 We use one single bin in the flow direction since we only want to measure the radial velocity profile.
 The command for giving each atom a \code{chunkID} is\footnote{The \& is used to continue the command on the next line since it is quite long.}
 \begin{lstlisting}
 compute chunk all chunk/atom bin/cylinder x lower &
-$(lx) $c $c 0 $R 30 units box
+$(lx) $c $c 0 $(v_R+3) 50 units box
 \end{lstlisting}
-It will create 30 radial bins for $r\in (0, R)$, where $R$ is the radius of the inner cylinder.
+It will create 50 radial bins for $r\in (0, R+3)$, where $R$ is the radius of the inner cylinder.
+We measure in a cylinder that it slightly larger than the initially defined cylinder to see where the boundary is in the plot.
 The final command we will use is the \code{fix ave/chunk} where we can get a smooth averaged velocity profile sampled over many timesteps.
 To obtain this, we use
 \begin{lstlisting}
@@ -537,29 +534,34 @@ When we click it, we will get the figure shown in figure \ref{fig:velocity_profi
 	\centering
 	\includegraphics[width=\textwidth]{figures/velocity_profile.pdf}
 	\caption{
-		The velocity profile for a Lennard Jones gas inside a nanochannel of radius 8.7 (reduced units).
-		Since the wall also is made of Lennard Jones atoms, some of the wall atoms
-		This figure is made using the Atomify real-time plotter which can show any scalar value defined in LAMMPS
-		as compute, fix or variable.
+		The velocity profile for a Lennard Jones gas inside a nanochannel of radius 12.
+		Atomify provides real-time plots as seen in a) and can export data to MATLAB, Python
+		or raw text, which can be used to produce publication ready figures as in b).
+		Here we have normalized the velocity profiles by the mean value so it is easier
+		to compare the profile at different densities. The higher near-boundary velocity at low densities
+		is evident from these simulations.
     }
 	\label{fig:velocity_profile1}
 \end{figure}
-\todo{Create fig 6 with both one single velocity profile and MATLAB plot of all of them. Maybe W/H = 0.5?}
+
 \subsection{Results}
-We conclude this case study with a series of simulations of the system described above for different densities $\rho$.
-Each simulation runs 10000 timesteps before we export the plots from \code{fix vx} to MATLAB using the Export function seen in figure \ref{fig:velocity_profile1}a.
-All these plots are now merged into a final figure which is shown in figure \ref{fig:velocity_profile1}b.
-It is here evident that the velocity near the boundary is not zero, which is the reason why the permeability is much higher for dilute gases than dense liquids.
-This is, as mentioned earlier, called the Klinkenberg effect\cite{klinkenberg1941permeability}.
+We conclude this case study with a series of such simulations for different densities $\rho_m$.
+Each simulation runs 5000 timesteps before starting to sample for another 50000 timesteps.
+We export the plots from \code{fix vx} to MATLAB using the Export function seen in figure \ref{fig:velocity_profile1}a.
+All these plots are now merged into a final figure which is shown in figure \ref{fig:velocity_profile1}b, where
+we have normalized each velocity profile to its mean value so flow profiles are easier to compare.
+It is here evident that the low density velocities have a higher velocity near the boundary - i.e. so called plug flow.
+As discussed before, this is the Klinkenberg effect and explains why the permeability can be much higher for dilute gases than dense liquids.
 
 \section{Availability}
 Atomify is available on Linux and MacOS and can be downloaded from
-\href{https://ovilab.net/atomify}{http://ovilab.net/atomify}.
+\url{https://github.com/ovilab/atomify}
 A lightweight version of Atomify is also available for mobile devices running
-Android or iOS.
+Android or iOS. This version runs LAMMPS on the device with real-time visualization
+and supports simple interactions such as setting the temperature on thermostats.
 
 \section{Acknowledgments}
-Statoil etc.
+This work is part of the Tight Rocks research program funded by Equinor ASA at the University of Oslo.
 
 \section*{References}
 \bibliography{Remote}

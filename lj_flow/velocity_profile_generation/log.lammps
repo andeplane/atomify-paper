@@ -1,6 +1,52 @@
 LAMMPS (16 Mar 2018)
 fix atomify all atomify
-#/camera position -63.0668 62.4751 33.8401
-#/camera viewcenter 35.5396 25.4799 16.796
+lattice	fcc 0.975
+Lattice spacing in x,y,z = 1.60085 1.60085 1.60085
+region box block 0 60 0 30 0 30
+create_box 2 box
+Created orthogonal box = (0 0 0) to (96.0513 48.0256 48.0256)
+  1 by 1 by 1 MPI processor grid
+create_atoms 1 box
+Created 216000 atoms
+  Time spent = 0.0352368 secs
 
-log log.short
+pair_style lj/cut 2.5
+pair_coeff 1 1 1.0 1.0 2.5
+pair_coeff 2 2 0.5 0.88 2.5
+pair_coeff 1 2 0.2 1.0 2.5
+
+mass 1 4.0
+mass 2 0.5
+
+variable R equal 12
+variable c equal $(ly*0.5)
+variable c equal 24.012813670346833561
+region cylinder1 cylinder x $c $c $R EDGE EDGE units box
+region cylinder1 cylinder x 24.0128136703468 $c $R EDGE EDGE units box
+region cylinder1 cylinder x 24.0128136703468 24.0128136703468 $R EDGE EDGE units box
+region cylinder1 cylinder x 24.0128136703468 24.0128136703468 12 EDGE EDGE units box
+set region cylinder1 type 2
+  41820 settings made for type
+
+run 1000
+Neighbor list info ...
+  update every 1 steps, delay 10 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 2.8
+  ghost atom cutoff = 2.8
+  binsize = 1.4, bins = 69 35 35
+  2 neighbor lists, perpetual/occasional/extra = 1 1 0
+  (1) pair lj/cut, perpetual
+      attributes: half, newton on
+      pair build: half/bin/atomonly/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+  (2) fix atomify, occasional, copy from (1)
+      attributes: half, newton on
+      pair build: copy
+      stencil: none
+      bin: none
+Per MPI rank memory allocation (min/avg/max) = 87.16 | 87.16 | 87.16 Mbytes
+Step Temp E_pair E_mol TotEng Press 
+       0            0    -6.582803            0    -6.582803   -4.0661703 
+Total wall time: 0:01:06

@@ -13,7 +13,7 @@ Created orthogonal box = (0 0 0) to (96.0513 48.0256 48.0256)
   1 by 1 by 1 MPI processor grid
 create_atoms 1 box
 Created 216000 atoms
-  Time spent = 0.03584 secs
+  Time spent = 0.0268281 secs
 mass 1 4.0
 mass 2 0.5
 
@@ -23,7 +23,7 @@ pair_coeff 1 1 1.0 1.0 2.5
 pair_coeff 2 2 0.5 0.88 2.5
 pair_coeff 1 2 0.2 1.0 2.5
 #pair_coeff 1 2 1.5 0.8 2.5
-pair_modify mix geometric
+#pair_modify mix geometric
 neigh_modify every 1 delay 0 check yes
 
 variable R equal 12
@@ -75,9 +75,6 @@ region force cylinder x $(0.5*ly) $(0.5*lz) $(v_R-1) EDGE EDGE units box
 region force cylinder x 24.012813670346833561 $(0.5*lz) $(v_R-1) EDGE EDGE units box
 region force cylinder x 24.012813670346833561 24.012813670346833561 $(v_R-1) EDGE EDGE units box
 region force cylinder x 24.012813670346833561 24.012813670346833561 11 EDGE EDGE units box
-group inner dynamic all region cylinder1 every 1
-dynamic group inner defined
-#group gas dynamic all region force every 1
 group gas type 2
 2087 atoms in group gas
 
@@ -87,14 +84,57 @@ fix langevin langevin langevin 0.50 0.50 1.0 12345 zero yes
 variable gascount equal count(gas)
 
 variable dP equal 0.001
-variable measured_rho equal mass(gas)/(PI*(v_R-1)*(v_R-1)*lx)
-variable force equal v_dP/v_measured_rho
 variable force equal v_dP/v_rho
 
 velocity all create 0.1 87287
 velocity frozen set 0 0 0
 
-compute chunk all chunk/atom bin/cylinder x lower $(lx) $(0.5*ly) $(0.5*lz) 0 $(v_R+5) 30 units box
-compute chunk all chunk/atom bin/cylinder x lower 96.051254681387334244 $(0.5*ly) $(0.5*lz) 0 $(v_R+5) 30 units box
-compute chunk all chunk/atom bin/cylinder x lower 96.051254681387334244 24.012813670346833561 $(0.5*lz) 0 $(v_R+5) 30 units box
-compute chunk all chunk/atom bin/cylinder x lower 96.051254681387334244 24.0128136703468
+compute chunk all chunk/atom bin/cylinder x lower $(lx) $(0.5*ly) $(0.5*lz) 0 $(v_R+3) 80 units box
+compute chunk all chunk/atom bin/cylinder x lower 96.051254681387334244 $(0.5*ly) $(0.5*lz) 0 $(v_R+3) 80 units box
+compute chunk all chunk/atom bin/cylinder x lower 96.051254681387334244 24.012813670346833561 $(0.5*lz) 0 $(v_R+3) 80 units box
+compute chunk all chunk/atom bin/cylinder x lower 96.051254681387334244 24.012813670346833561 24.012813670346833561 0 $(v_R+3) 80 units box
+compute chunk all chunk/atom bin/cylinder x lower 96.051254681387334244 24.012813670346833561 24.012813670346833561 0 15 80 units box
+
+compute displacement all displace/atom
+compute mean_displacement nve reduce ave c_displacement[4]
+
+compute vmax all reduce max vx
+variable volume equal count(gas)/v_V
+
+thermo_style custom step time temp c_mean_displacement v_volume v_force c_vmax dt spcpu cpuremain
+thermo 100
+
+compute keAtom all ke/atom
+dump dump all custom 1000 trajectory.bin id type x y z c_keAtom
+
+compute cna all cna/atom 1.25
+
+fix flow gas addforce v_force 0.0 0.0
+run 5000
+Neighbor list info ...
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 2.8
+  ghost atom cutoff = 2.8
+  binsize = 1.4, bins = 69 35 35
+  3 neighbor lists, perpetual/occasional/extra = 1 2 0
+  (1) pair lj/cut, perpetual
+      attributes: half, newton on
+      pair build: half/bin/atomonly/newton
+      stencil: half/bin/3d/newton
+      bin: standard
+  (2) fix atomify, occasional, copy from (1)
+      attributes: half, newton on
+      pair build: copy
+      stencil: none
+      bin: none
+  (3) compute cna/atom, occasional
+      attributes: full, newton on
+      pair build: full/bin/atomonly
+      stencil: full/bin/3d
+      bin: standard
+Per MPI rank memory allocation (min/avg/max) = 97.91 | 97.91 | 97.91 Mbytes
+Step Time Temp c_mean_displacement v_volume v_force c_vmax Dt S/CPU CPULeft 
+       0            0  0.051068338            0  0.048029387         0.02   0.77503106        0.005            0            0 
+     100          0.5  0.065548838  0.060057536  0.048029387         0.02    1.6174156        0.005            0    3738.0368 
+Total wall time: 0:01:23
