@@ -264,7 +264,7 @@ where we apply different rules such as a dissipative thermostat, a constant forc
 an applied pressure gradient, and frozen atoms to avoid net momentum of the solid.
 We introduce two different atom types in order to have a gas phase and a solid phase at the same temperature.
 
-Fluid flow in porous structures is often characterized by its permeability, $k$, which describes the fluid flow conductivity of a fluid in a specific geometry. Darcy's law relates the average flow velocity, $U$, to the applied pressure gradient $\nabla P$: $U = (k/\mu)(-\nabla P)$, where $\mu$ is the viscosity of the fluid. In Darcy's law, the permeability is assumed to only depend on the material and its geometry. 
+Fluid flow in porous structures is often characterized by its permeability, $k$, which describes the fluid flow conductivity of a fluid in a specific geometry. Darcy's law relates the fluid flux, $q$, to the applied pressure gradient $\nabla P$: $q = (k/\mu)(-\nabla P)$, where $\mu$ is the viscosity of the fluid. In Darcy's law, the permeability is assumed to only depend on the material and its geometry. 
 \todo[inline]{U is the flux here, not the average velocity?}
 However, Darcy's law must be modified for dilute
 gases where the measured permeability also is found to also be a function of pressure.
